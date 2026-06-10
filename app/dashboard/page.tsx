@@ -332,13 +332,20 @@ function BetPanel({ match, bets, users, myId, results, onBet }: {
 
         {tab === 'result' && (
           <div className={`grid gap-2 ${isKnockout ? 'grid-cols-2' : 'grid-cols-3'}`}>
-            {(isKnockout ? ['홈 승', '원정 승'] : RESULT_OPTIONS).map(opt => (
-              <button key={opt} disabled={saving || locked} onClick={() => save('result', opt)}
+            {(isKnockout ? [
+              { value: '홈 승', label: `${shortName(match.home)} 승` },
+              { value: '원정 승', label: `${shortName(match.away)} 승` },
+            ] : [
+              { value: '홈 승', label: `${shortName(match.home)} 승` },
+              { value: '무승부', label: '무승부' },
+              { value: '원정 승', label: `${shortName(match.away)} 승` },
+            ]).map(({ value, label }) => (
+              <button key={value} disabled={saving || locked} onClick={() => save('result', value)}
                 className={`py-3 rounded-[12px] text-sm font-semibold transition-all active:scale-[0.97] ${
                   locked
-                    ? myBet?.bet_value === opt ? 'bg-[#EBF3FF] text-[#0057B8] border border-[#FFB81C]' : 'bg-[#FAFAFA] text-[#BBBBBB] cursor-not-allowed'
-                    : myBet?.bet_value === opt ? 'bg-[#0057B8] text-white shadow-[0_2px_8px_rgba(124,140,3,0.3)]' : 'bg-[#F5F5F5] text-[#222222] hover:bg-[#E6E6E6]'
-                }`}>{opt}
+                    ? myBet?.bet_value === value ? 'bg-[#EBF3FF] text-[#0057B8] border border-[#FFB81C]' : 'bg-[#FAFAFA] text-[#BBBBBB] cursor-not-allowed'
+                    : myBet?.bet_value === value ? 'bg-[#0057B8] text-white shadow-[0_2px_8px_rgba(124,140,3,0.3)]' : 'bg-[#F5F5F5] text-[#222222] hover:bg-[#E6E6E6]'
+                }`}>{label}
               </button>
             ))}
           </div>
