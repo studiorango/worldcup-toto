@@ -230,14 +230,14 @@ function Leaderboard({ users, bets, results }: { users: DBUser[]; bets: DBBet[];
   const medals = ['🥇', '🥈', '🥉']
 
   return (
-    <div className="bg-white rounded-[14px] border border-[#E6E6E6] shadow-[0_1px_3px_rgba(0,0,0,0.04)] overflow-hidden mb-4">
-      <div className="px-4 py-3 border-b border-[#E6E6E6]">
+    <div className="bg-white rounded-[14px] border border-[#E6E6E6] shadow-[0_1px_3px_rgba(0,0,0,0.04)] overflow-hidden mb-4 mx-2">
+      <div className="px-6 py-3 border-b border-[#E6E6E6]">
         <span className="text-sm font-extrabold text-[#222222]">순위표</span>
       </div>
       <div className="divide-y divide-[#E6E6E6]">
         {scores.map(({ user, score }, i) => {
           return (
-            <div key={user.id} className="flex items-center gap-3 px-6 py-3.5">
+            <div key={user.id} className="flex items-center gap-3 px-12 py-3.5">
               <span className="text-lg w-6 text-center flex-shrink-0">
                 {i < 3 ? medals[i] : <span className="text-sm font-bold text-[#8B8B8B]">{i + 1}</span>}
               </span>
@@ -632,7 +632,6 @@ export default function DashboardPage() {
         </section>
 
         <section>
-          <h2 className="text-base font-extrabold text-[#222222] tracking-tight mb-3">전체 일정</h2>
           <div className="flex gap-2 mb-3">
             {(['group','knockout'] as const).map(v => (
               <button key={v} onClick={() => { setScheduleView(v); setActiveDateIdx(0) }}
