@@ -235,19 +235,20 @@ function Leaderboard({ users, bets, results }: { users: DBUser[]; bets: DBBet[];
   ]
 
   return (
-    <div className="rounded-[20px] p-5 mb-4 relative overflow-hidden"
-      style={{ background: 'linear-gradient(135deg, #011638 0%, #0057B8 100%)' }}>
-      <p className="text-xs font-bold mb-4" style={{ color: 'rgba(255,255,255,0.5)' }}>순위표</p>
-      <div className="flex flex-col gap-2">
+    <div className="bg-white rounded-[20px] border border-[#E6E6E6] shadow-[0_1px_3px_rgba(0,0,0,0.04)] overflow-hidden mb-4">
+      <div className="px-5 py-3 border-b border-[#E6E6E6]">
+        <span className="text-sm font-extrabold text-[#222222]">순위표</span>
+      </div>
+      <div className="flex flex-col divide-y divide-[#E6E6E6]">
         {scores.map(({ user, score }, i) => (
           <div key={user.id}
-            className="flex items-center gap-4 px-4 py-3 rounded-[12px] border"
-            style={{ background: rankColors[i]?.bg ?? 'rgba(255,255,255,0.04)', borderColor: rankColors[i]?.border ?? 'rgba(255,255,255,0.1)' }}>
-            <span className="text-xl w-6 text-center flex-shrink-0">{i < 3 ? medals[i] : i + 1}</span>
-            <span className="flex-1 text-sm font-bold text-white">{user.display_name}</span>
+            className="flex items-center gap-4 px-5 py-3.5"
+            style={i === 0 ? { background: 'rgba(255,184,28,0.06)' } : {}}>
+            <span className="text-xl w-6 text-center flex-shrink-0">{i < 3 ? medals[i] : <span className="text-sm font-bold text-[#8B8B8B]">{i + 1}</span>}</span>
+            <span className="flex-1 text-sm font-semibold text-[#222222]">{user.display_name}</span>
             <div className="flex items-baseline gap-0.5">
-              <span className="text-2xl font-extrabold" style={{ color: i === 0 ? '#FFB81C' : 'rgba(255,255,255,0.85)' }}>{score}</span>
-              <span className="text-xs font-semibold" style={{ color: 'rgba(255,255,255,0.4)' }}>점</span>
+              <span className="text-xl font-extrabold" style={{ color: i === 0 ? '#FFB81C' : '#011638' }}>{score}</span>
+              <span className="text-xs text-[#8B8B8B]">점</span>
             </div>
           </div>
         ))}
