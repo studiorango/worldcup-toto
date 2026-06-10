@@ -86,7 +86,7 @@ export default function LoginPage() {
           <Image src="/wc2026-logo.svg" alt="FIFA 월드컵 2026" width={100} height={100} style={{ objectFit: 'contain' }} />
         </div>
         <h1 className="text-2xl font-extrabold tracking-tight text-white">2026 월드컵 토토</h1>
-        <p className="text-sm mt-1" style={{ color: 'rgba(255,255,255,0.5)' }}>친구들과 함께하는 승부 예측</p>
+        <p className="text-sm mt-1" style={{ color: 'rgba(255,255,255,0.5)' }}>승무패, 스코어, 언오버 맞추기</p>
       </div>
 
       <div className="w-full max-w-[360px] rounded-[20px] border p-6 flex flex-col gap-6"
