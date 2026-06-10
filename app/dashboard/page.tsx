@@ -521,7 +521,11 @@ export default function DashboardPage() {
     const supabase = createClient()
     const existing = bets.find(b => b.user_id === me.id && b.match_id === matchId && b.bet_type === type)
 
-    if (existing) {
+    if (existing && existing.bet_value === value) {
+      await supabase.from('worldcup_bets').delete().eq('id', existing.id)
+      setBets(prev => prev.filter(b => b.id !== existing.id))
+      showToast('픽 취소!')
+    } else if (existing) {
       const { data } = await supabase.from('worldcup_bets')
         .update({ bet_value: value })
         .eq('id', existing.id)
