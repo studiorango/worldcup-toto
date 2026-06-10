@@ -26,6 +26,16 @@ interface Match {
   group: string; venue: string; stage: MatchStage
 }
 
+const SHORT_NAMES: Record<string, string> = {
+  '남아프리카공화국': '남아공',
+  '보스니아헤르체고비나': '보스니아',
+  '사우디아라비아': '사우디',
+  '콩고민주공화국': '콩고DR',
+  '코트디부아르': '코트디',
+  '우즈베키스탄': '우즈벡',
+}
+function shortName(name: string) { return SHORT_NAMES[name] ?? name }
+
 const FLAGS: Record<string, string> = {
   '멕시코':'🇲🇽','남아프리카공화국':'🇿🇦','대한민국':'🇰🇷','체코':'🇨🇿',
   '캐나다':'🇨🇦','보스니아헤르체고비나':'🇧🇦','미국':'🇺🇸','파라과이':'🇵🇾',
@@ -448,14 +458,14 @@ function MyBets({ bets, results, myId }: {
         {byMatch.map(({ match, bets: mb, result }) => (
           <div key={match.id} className="bg-white rounded-[14px] border border-[#E6E6E6] shadow-[0_1px_3px_rgba(0,0,0,0.04)] overflow-hidden">
             <div className="px-4 py-3 border-b border-[#E6E6E6] flex items-center justify-between">
-              <div className="flex items-center gap-2">
+              <div className="flex flex-col gap-0.5">
                 <span className="text-xs font-semibold text-[#8B8B8B]">{match.dateKST.slice(5).replace('-','/')} {match.timeKST}</span>
-                <span className="text-sm font-bold text-[#222222]">{match.homeFlag} {match.home} vs {match.awayFlag} {match.away}</span>
+                <span className="text-sm font-bold text-[#222222]">{match.homeFlag} {shortName(match.home)} vs {match.awayFlag} {shortName(match.away)}</span>
               </div>
               {result ? (
-                <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-[#E6EBB8] text-[#7C8C03]">결과 발표</span>
+                <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-[#E6EBB8] text-[#7C8C03] flex-shrink-0">결과 발표</span>
               ) : (
-                <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-[#F5F7FA] text-[#49627A]">대기중</span>
+                <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-[#F5F7FA] text-[#49627A] flex-shrink-0">대기중</span>
               )}
             </div>
             <div className="divide-y divide-[#E6E6E6]">
@@ -467,14 +477,14 @@ function MyBets({ bets, results, myId }: {
                       <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[#F5F7FA] text-[#49627A]">
                         {BET_TYPE_LABEL[bet.bet_type]}
                       </span>
-                      <span className="text-sm font-semibold text-[#222222]">{bet.bet_value}</span>
+                      <span className="text-sm font-semibold text-[#222222] text-center">{bet.bet_value}</span>
                     </div>
                     {correct === null ? (
-                      <span className="text-xs text-[#BBBBBB]">—</span>
+                      <span className="text-xs text-[#BBBBBB] text-center">—</span>
                     ) : correct ? (
-                      <span className="text-sm font-bold text-[#01A484]">✓ 정답</span>
+                      <span className="text-sm font-bold text-[#01A484] text-center">✓ 정답</span>
                     ) : (
-                      <span className="text-sm font-bold text-[#F94239]">✗ 오답</span>
+                      <span className="text-sm font-bold text-[#F94239] text-center">✗ 오답</span>
                     )}
                   </div>
                 )
