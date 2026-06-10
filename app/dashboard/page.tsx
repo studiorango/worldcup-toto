@@ -479,20 +479,20 @@ function MyBets({ bets, results, myId }: {
               {mb.map(bet => {
                 const correct = result ? isCorrect(bet, result) : null
                 return (
-                  <div key={bet.id} className="px-4 py-3 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[#F5F7FA] text-[#49627A]">
-                        {BET_TYPE_LABEL[bet.bet_type]}
-                      </span>
-                      <span className="text-sm font-semibold text-[#222222] text-center">{bet.bet_value}</span>
+                  <div key={bet.id} className="grid grid-cols-3 items-center px-4 py-3">
+                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[#F5F7FA] text-[#49627A] w-fit">
+                      {BET_TYPE_LABEL[bet.bet_type]}
+                    </span>
+                    <span className="text-sm font-semibold text-[#222222] text-center">{bet.bet_value}</span>
+                    <div className="text-right">
+                      {correct === null ? (
+                        <span className="text-xs text-[#BBBBBB]">—</span>
+                      ) : correct ? (
+                        <span className="text-sm font-bold text-[#01A484]">✓ 정답</span>
+                      ) : (
+                        <span className="text-sm font-bold text-[#F94239]">✗ 오답</span>
+                      )}
                     </div>
-                    {correct === null ? (
-                      <span className="text-xs text-[#BBBBBB] text-center">—</span>
-                    ) : correct ? (
-                      <span className="text-sm font-bold text-[#01A484] text-center">✓ 정답</span>
-                    ) : (
-                      <span className="text-sm font-bold text-[#F94239] text-center">✗ 오답</span>
-                    )}
                   </div>
                 )
               })}
