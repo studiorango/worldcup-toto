@@ -416,6 +416,74 @@ function MatchCard({ match, bets, users, myId, results, onBet }: {
   )
 }
 
+const BET_TYPE_LABEL: Record<BetType, string> = { result: '승무패', score: '스코어', overunder: '언/오버' }
+
+function MyBets({ bets, results, myId }: {
+  bets: DBBet[]
+  results: DBResult[]
+  myId: string
+}) {
+  const myBets = bets.filter(b => b.user_id === myId)
+  if (myBets.length === 0) {
+    return (
+      <div className="bg-white rounded-[14px] border border-[#E6E6E6] p-10 text-center text-[#BBBBBB] text-sm mb-6">
+        아직 베팅한 경기가 없어요
+      </div>
+    )
+  }
+
+  const byMatch = ALL_MATCHES.map(match => {
+    const matchBets = myBets.filter(b => b.match_id === match.id)
+    if (matchBets.length === 0) return null
+    const result = results.find(r => r.match_id === match.id)
+    return { match, bets: matchBets, result }
+  }).filter(Boolean) as { match: Match; bets: DBBet[]; result: DBResult | undefined }[]
+
+  return (
+    <section className="mb-6">
+      <div className="flex flex-col gap-3">
+        {byMatch.map(({ match, bets: mb, result }) => (
+          <div key={match.id} className="bg-white rounded-[14px] border border-[#E6E6E6] shadow-[0_1px_3px_rgba(0,0,0,0.04)] overflow-hidden">
+            <div className="px-4 py-3 border-b border-[#E6E6E6] flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-semibold text-[#8B8B8B]">{match.dateKST.slice(5).replace('-','/')} {match.timeKST}</span>
+                <span className="text-sm font-bold text-[#222222]">{match.homeFlag} {match.home} vs {match.awayFlag} {match.away}</span>
+              </div>
+              {result ? (
+                <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-[#E6EBB8] text-[#7C8C03]">결과 발표</span>
+              ) : (
+                <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-[#F5F7FA] text-[#49627A]">대기중</span>
+              )}
+            </div>
+            <div className="divide-y divide-[#E6E6E6]">
+              {mb.map(bet => {
+                const correct = result ? isCorrect(bet, result) : null
+                return (
+                  <div key={bet.id} className="px-4 py-3 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[#F5F7FA] text-[#49627A]">
+                        {BET_TYPE_LABEL[bet.bet_type]}
+                      </span>
+                      <span className="text-sm font-semibold text-[#222222]">{bet.bet_value}</span>
+                    </div>
+                    {correct === null ? (
+                      <span className="text-xs text-[#BBBBBB]">—</span>
+                    ) : correct ? (
+                      <span className="text-sm font-bold text-[#01A484]">✓ 정답</span>
+                    ) : (
+                      <span className="text-sm font-bold text-[#F94239]">✗ 오답</span>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  )
+}
+
 function ScheduleRow({ match, expanded, onToggle }: {
   match: Match
   expanded: boolean; onToggle: () => void
@@ -475,6 +543,7 @@ export default function DashboardPage() {
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const [scheduleView, setScheduleView] = useState<'group'|'knockout'>('group')
   const [activeDateIdx, setActiveDateIdx] = useState(0)
+  const [mainTab, setMainTab] = useState<'schedule'|'mybets'>('schedule')
   const [dbLoading, setDbLoading] = useState(true)
   const [toast, setToast] = useState('')
 
@@ -614,6 +683,21 @@ export default function DashboardPage() {
 
         <Leaderboard users={users} bets={bets} results={results} />
 
+        {/* 메인 탭 */}
+        <div className="flex bg-white rounded-[12px] border border-[#E6E6E6] p-1 mb-4">
+          {(['schedule','mybets'] as const).map(t => (
+            <button key={t} onClick={() => setMainTab(t)}
+              className={`flex-1 py-2 text-sm font-semibold rounded-[9px] transition-all duration-150 ${
+                mainTab===t ? 'bg-[#011638] text-white shadow-sm' : 'text-[#8B8B8B] hover:text-[#222222]'
+              }`}>
+              {t==='schedule' ? '경기 일정' : '내 베팅'}
+            </button>
+          ))}
+        </div>
+
+        {mainTab === 'mybets' ? (
+          <MyBets bets={bets} results={results} myId={me.id} />
+        ) : (
         <section className="mb-6">
           <h2 className="text-base font-extrabold text-[#222222] tracking-tight mb-3">경기 일정</h2>
 
@@ -673,6 +757,7 @@ export default function DashboardPage() {
             </div>
           )}
         </section>
+        )}
 
         <p className="text-center text-xs text-[#BBBBBB] mt-8 break-keep">
           친목 목적의 순수 예측 게임 · 금전 거래 없음
