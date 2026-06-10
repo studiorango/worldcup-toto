@@ -205,7 +205,7 @@ const BET_LABELS: Record<BetType,string> = {
   result:'승무패', score:'스코어', overunder:'언더/오버',
 }
 const RESULT_OPTIONS = ['홈 승','무승부','원정 승']
-const OU_OPTIONS = ['언더 2.5','오버 2.5','언더 3.5','오버 3.5']
+const OU_OPTIONS = ['언더 2.5','오버 2.5']
 
 function Avatar({ user }: { user: DBUser }) {
   return (
