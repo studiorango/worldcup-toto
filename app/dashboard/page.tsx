@@ -452,12 +452,22 @@ function MyBets({ bets, results, myId }: {
     )
   }
 
+  const BET_ORDER: BetType[] = ['result', 'score', 'overunder']
+
   const byMatch = ALL_MATCHES.map(match => {
     const matchBets = myBets.filter(b => b.match_id === match.id)
+      .sort((a, b) => BET_ORDER.indexOf(a.bet_type) - BET_ORDER.indexOf(b.bet_type))
     if (matchBets.length === 0) return null
     const result = results.find(r => r.match_id === match.id)
     return { match, bets: matchBets, result }
   }).filter(Boolean) as { match: Match; bets: DBBet[]; result: DBResult | undefined }[]
+
+  function displayBetValue(bet: DBBet, match: Match) {
+    if (bet.bet_type !== 'result') return bet.bet_value
+    if (bet.bet_value === '홈 승') return `${shortName(match.home)} 승`
+    if (bet.bet_value === '원정 승') return `${shortName(match.away)} 승`
+    return bet.bet_value
+  }
 
   return (
     <section className="mb-6">
@@ -483,7 +493,7 @@ function MyBets({ bets, results, myId }: {
                     <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[#F5F7FA] text-[#49627A] w-fit">
                       {BET_TYPE_LABEL[bet.bet_type]}
                     </span>
-                    <span className="text-sm font-semibold text-[#222222] text-center">{bet.bet_value}</span>
+                    <span className="text-sm font-semibold text-[#222222] text-center">{displayBetValue(bet, match)}</span>
                     <div className="text-right">
                       {correct === null ? (
                         <span className="text-xs text-[#BBBBBB]">—</span>
