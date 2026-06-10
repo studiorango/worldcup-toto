@@ -228,27 +228,29 @@ function BetBadge({ type, value }: { type: BetType; value: string }) {
 function Leaderboard({ users, bets, results }: { users: DBUser[]; bets: DBBet[]; results: DBResult[] }) {
   const scores = calcScores(users, bets, results)
   const medals = ['🥇', '🥈', '🥉']
+  const rankColors = [
+    { border: 'rgba(255,184,28,0.6)', bg: 'rgba(255,184,28,0.12)' },
+    { border: 'rgba(255,255,255,0.25)', bg: 'rgba(255,255,255,0.08)' },
+    { border: 'rgba(255,255,255,0.15)', bg: 'rgba(255,255,255,0.05)' },
+  ]
 
   return (
-    <div className="bg-white rounded-[14px] border border-[#E6E6E6] shadow-[0_1px_3px_rgba(0,0,0,0.04)] overflow-hidden mb-4 mx-2">
-      <div className="px-6 py-3 border-b border-[#E6E6E6]">
-        <span className="text-sm font-extrabold text-[#222222]">순위표</span>
-      </div>
-      <div className="divide-y divide-[#E6E6E6]">
-        {scores.map(({ user, score }, i) => {
-          return (
-            <div key={user.id} className="flex items-center gap-3 px-12 py-3.5">
-              <span className="text-lg w-6 text-center flex-shrink-0">
-                {i < 3 ? medals[i] : <span className="text-sm font-bold text-[#8B8B8B]">{i + 1}</span>}
-              </span>
-              <span className="flex-1 text-sm font-semibold text-[#222222]">{user.display_name}</span>
-              <div className="flex items-center gap-1">
-                <span className="text-xl font-extrabold" style={{ color: i === 0 && score > 0 ? '#FFB81C' : '#222222' }}>{score}</span>
-                <span className="text-xs text-[#8B8B8B]">점</span>
-              </div>
+    <div className="rounded-[20px] p-5 mb-4 relative overflow-hidden"
+      style={{ background: 'linear-gradient(135deg, #011638 0%, #0057B8 100%)' }}>
+      <p className="text-xs font-bold mb-4" style={{ color: 'rgba(255,255,255,0.5)' }}>순위표</p>
+      <div className="flex flex-col gap-2">
+        {scores.map(({ user, score }, i) => (
+          <div key={user.id}
+            className="flex items-center gap-4 px-4 py-3 rounded-[12px] border"
+            style={{ background: rankColors[i]?.bg ?? 'rgba(255,255,255,0.04)', borderColor: rankColors[i]?.border ?? 'rgba(255,255,255,0.1)' }}>
+            <span className="text-xl w-6 text-center flex-shrink-0">{i < 3 ? medals[i] : i + 1}</span>
+            <span className="flex-1 text-sm font-bold text-white">{user.display_name}</span>
+            <div className="flex items-baseline gap-0.5">
+              <span className="text-2xl font-extrabold" style={{ color: i === 0 ? '#FFB81C' : 'rgba(255,255,255,0.85)' }}>{score}</span>
+              <span className="text-xs font-semibold" style={{ color: 'rgba(255,255,255,0.4)' }}>점</span>
             </div>
-          )
-        })}
+          </div>
+        ))}
       </div>
     </div>
   )
