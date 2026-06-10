@@ -475,7 +475,7 @@ function MyBets({ bets, results, myId }: {
         {byMatch.map(({ match, bets: mb, result }) => (
           <div key={match.id} className="bg-white rounded-[14px] border border-[#E6E6E6] shadow-[0_1px_3px_rgba(0,0,0,0.04)] overflow-hidden">
             <div className="px-4 pt-3 pb-2 border-b border-[#E6E6E6]">
-              <div className="flex items-center justify-between mb-1.5">
+              <div className="flex items-center justify-between mb-2">
                 <span className="text-xs font-semibold text-[#8B8B8B]">{match.dateKST.slice(5).replace('-','/')} {match.timeKST}</span>
                 {result ? (
                   <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-[#E6EBB8] text-[#7C8C03]">결과 발표</span>
