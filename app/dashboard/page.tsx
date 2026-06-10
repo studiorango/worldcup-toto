@@ -506,13 +506,10 @@ export default function DashboardPage() {
     [...new Set(ALL_MATCHES.filter(x=>x.stage==='group').map(x=>x.dateKST))].sort(), [])
   const knockoutStages: MatchStage[] = ['r32','r16','qf','sf','3rd','final']
 
-  const todayMatches = ALL_MATCHES.filter(x => x.dateKST === TODAY && x.stage === 'group')
-  const nextDateMatches = useMemo(() => {
-    const futureDate = groupDates.find(d => d >= TODAY)
-    return futureDate ? ALL_MATCHES.filter(x => x.dateKST === futureDate) : []
+  useEffect(() => {
+    const idx = groupDates.findIndex(d => d >= TODAY)
+    if (idx >= 0) setActiveDateIdx(idx)
   }, [groupDates])
-  const dashMatches = todayMatches.length > 0 ? todayMatches : nextDateMatches
-  const dashLabel = todayMatches.length > 0 ? '오늘의 경기' : '다음 경기'
 
   function formatDate(d: string) {
     const dt = new Date(d + 'T00:00:00')
@@ -614,24 +611,8 @@ export default function DashboardPage() {
         <Leaderboard users={users} bets={bets} results={results} />
 
         <section className="mb-6">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-base font-extrabold text-[#222222] tracking-tight">{dashLabel}</h2>
-          </div>
-          {dashMatches.length > 0 ? (
-            <div className="flex flex-col gap-3">
-              {dashMatches.map(match => (
-                <MatchCard key={match.id} match={match} bets={bets} users={users} myId={me.id}
-                  results={results} onBet={handleBet} />
-              ))}
-            </div>
-          ) : (
-            <div className="bg-white rounded-[14px] border border-[#E6E6E6] p-8 text-center text-[#BBBBBB] text-sm">
-              오늘 예정된 경기가 없습니다
-            </div>
-          )}
-        </section>
+          <h2 className="text-base font-extrabold text-[#222222] tracking-tight mb-3">경기 일정</h2>
 
-        <section>
           <div className="flex gap-2 mb-3">
             {(['group','knockout'] as const).map(v => (
               <button key={v} onClick={() => { setScheduleView(v); setActiveDateIdx(0) }}
@@ -655,9 +636,10 @@ export default function DashboardPage() {
                   </button>
                 ))}
               </div>
-              <div className="bg-white rounded-[14px] border border-[#E6E6E6] shadow-[0_1px_3px_rgba(0,0,0,0.04)] overflow-hidden divide-y divide-[#E6E6E6]">
+              <div className="flex flex-col gap-3">
                 {ALL_MATCHES.filter(x => x.stage==='group' && x.dateKST===groupDates[activeDateIdx]).map(match => (
-                  <ScheduleRow key={match.id} match={match} expanded={expandedId === match.id} onToggle={() => setExpandedId(prev => prev === match.id ? null : match.id)} />
+                  <MatchCard key={match.id} match={match} bets={bets} users={users} myId={me.id}
+                    results={results} onBet={handleBet} />
                 ))}
               </div>
             </>
@@ -665,18 +647,20 @@ export default function DashboardPage() {
             <div className="flex flex-col gap-3">
               {knockoutStages.map(stage => {
                 const sm = ALL_MATCHES.filter(x => x.stage===stage)
+                if (sm.length === 0) return null
                 return (
-                  <div key={stage} className="bg-white rounded-[14px] border border-[#E6E6E6] shadow-[0_1px_3px_rgba(0,0,0,0.04)] overflow-hidden">
-                    <div className="px-4 py-2.5 bg-[#F5F7FA] border-b border-[#E6E6E6] flex items-center gap-2">
+                  <div key={stage}>
+                    <div className="flex items-center gap-2 mb-2 px-1">
                       <span className="text-xs font-extrabold text-[#222222]">{STAGE_LABELS[stage]}</span>
                       <span className="text-[10px] text-[#8B8B8B]">
                         {sm[0]?.dateKST.slice(5).replace('-','/')}
                         {sm.length>1 && ` ~ ${sm[sm.length-1]?.dateKST.slice(5).replace('-','/')}`}
                       </span>
                     </div>
-                    <div className="divide-y divide-[#E6E6E6]">
+                    <div className="flex flex-col gap-3">
                       {sm.map(match => (
-                        <ScheduleRow key={match.id} match={match} expanded={expandedId === match.id} onToggle={() => setExpandedId(prev => prev === match.id ? null : match.id)} />
+                        <MatchCard key={match.id} match={match} bets={bets} users={users} myId={me.id}
+                          results={results} onBet={handleBet} />
                       ))}
                     </div>
                   </div>
