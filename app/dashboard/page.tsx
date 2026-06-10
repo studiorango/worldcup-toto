@@ -753,7 +753,7 @@ export default function DashboardPage() {
         )}
 
         <p className="text-center text-xs text-[#BBBBBB] mt-8 break-keep">
-          친목 목적의 순수 예측 게임 · 금전 거래 없음
+          © 2026 김민제. All rights reserved.
         </p>
       </main>
 
