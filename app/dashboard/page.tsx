@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { Icon } from '@iconify/react'
+import Image from 'next/image'
 import { createClient } from '@/lib/supabase'
 import { getSession, clearSession, type WCUser } from '@/lib/worldcup-auth'
 
@@ -217,7 +218,7 @@ function Avatar({ user }: { user: DBUser }) {
 
 function BetBadge({ type, value }: { type: BetType; value: string }) {
   const s: Record<BetType, string> = {
-    result:    'bg-[#F4F6E0] text-[#7C8C03] border border-[#CEDA80]',
+    result:    'bg-[#EBF3FF] text-[#0057B8] border border-[#FFB81C]',
     score:     'bg-[#F5F7FA] text-[#49627A] border border-[#E6E6E6]',
     overunder: 'bg-[#FFF4D8] text-[#FFB803] border border-[#FFB803]/30',
   }
@@ -246,7 +247,7 @@ function Leaderboard({ users, bets, results }: { users: DBUser[]; bets: DBBet[];
               <span className="flex-1 text-sm font-semibold text-[#222222]">{user.display_name}</span>
               <div className="flex items-center gap-3">
                 <div className="text-right">
-                  <span className="text-xl font-extrabold" style={{ color: i === 0 && score > 0 ? '#7C8C03' : '#222222' }}>{score}</span>
+                  <span className="text-xl font-extrabold" style={{ color: i === 0 && score > 0 ? '#FFB81C' : '#222222' }}>{score}</span>
                   <span className="text-xs text-[#8B8B8B] ml-0.5">점</span>
                 </div>
                 <div className="text-right min-w-[48px]">
@@ -297,7 +298,7 @@ function BetPanel({ match, bets, users, myId, results, onBet }: {
         {(['result', 'score', 'overunder'] as BetType[]).map(t => (
           <button key={t} onClick={() => setTab(t)}
             className={`flex-shrink-0 py-2.5 px-3 text-xs font-semibold border-b-2 transition-colors ${
-              tab === t ? 'border-[#7C8C03] text-[#7C8C03]' : 'border-transparent text-[#8B8B8B]'
+              tab === t ? 'border-[#0057B8] text-[#0057B8]' : 'border-transparent text-[#8B8B8B]'
             }`}>
             {BET_LABELS[t]}
           </button>
@@ -313,11 +314,11 @@ function BetPanel({ match, bets, users, myId, results, onBet }: {
               return (
                 <div key={b.user_id}
                   className={`flex items-center gap-1.5 rounded-full px-2.5 py-1 ${
-                    correct === true ? 'bg-[#F4F6E0]' : correct === false ? 'bg-[#FFF5F5]' : 'bg-[#F5F7FA]'
+                    correct === true ? 'bg-[#EBF3FF]' : correct === false ? 'bg-[#FFF5F5]' : 'bg-[#F5F7FA]'
                   }`}>
                   <span className="text-[11px] font-semibold text-[#222222]">{u.display_name}</span>
                   <BetBadge type={b.bet_type} value={b.bet_value} />
-                  {correct === true && <Icon icon="solar:check-circle-bold" className="w-3.5 h-3.5 text-[#7C8C03]" />}
+                  {correct === true && <Icon icon="solar:check-circle-bold" className="w-3.5 h-3.5 text-[#0057B8]" />}
                   {correct === false && <Icon icon="solar:close-circle-bold" className="w-3.5 h-3.5 text-[#F94239]" />}
                 </div>
               )
@@ -331,8 +332,8 @@ function BetPanel({ match, bets, users, myId, results, onBet }: {
               <button key={opt} disabled={saving || locked} onClick={() => save('result', opt)}
                 className={`py-3 rounded-[12px] text-sm font-semibold transition-all active:scale-[0.97] ${
                   locked
-                    ? myBet?.bet_value === opt ? 'bg-[#F4F6E0] text-[#7C8C03] border border-[#CEDA80]' : 'bg-[#FAFAFA] text-[#BBBBBB] cursor-not-allowed'
-                    : myBet?.bet_value === opt ? 'bg-[#7C8C03] text-white shadow-[0_2px_8px_rgba(124,140,3,0.3)]' : 'bg-[#F5F5F5] text-[#222222] hover:bg-[#E6E6E6]'
+                    ? myBet?.bet_value === opt ? 'bg-[#EBF3FF] text-[#0057B8] border border-[#FFB81C]' : 'bg-[#FAFAFA] text-[#BBBBBB] cursor-not-allowed'
+                    : myBet?.bet_value === opt ? 'bg-[#0057B8] text-white shadow-[0_2px_8px_rgba(124,140,3,0.3)]' : 'bg-[#F5F5F5] text-[#222222] hover:bg-[#E6E6E6]'
                 }`}>{opt}
               </button>
             ))}
@@ -361,7 +362,7 @@ function BetPanel({ match, bets, users, myId, results, onBet }: {
             {!locked && (
               <button onClick={() => { if (scoreHome !== '' && scoreAway !== '') save('score', `${scoreHome}:${scoreAway}`) }}
                 disabled={saving || scoreHome === '' || scoreAway === ''}
-                className="w-full bg-[#7C8C03] text-white py-2.5 rounded-[12px] text-sm font-semibold hover:bg-[#5A6602] active:scale-[0.98] disabled:bg-[#FAFAFA] disabled:text-[#BBBBBB] transition-all">
+                className="w-full bg-[#0057B8] text-white py-2.5 rounded-[12px] text-sm font-semibold hover:bg-[#003D8A] active:scale-[0.98] disabled:bg-[#FAFAFA] disabled:text-[#BBBBBB] transition-all">
                 저장
               </button>
             )}
@@ -374,8 +375,8 @@ function BetPanel({ match, bets, users, myId, results, onBet }: {
               <button key={opt} disabled={saving || locked} onClick={() => save('overunder', opt)}
                 className={`py-3 rounded-[12px] text-sm font-semibold transition-all active:scale-[0.97] ${
                   locked
-                    ? myBet?.bet_value === opt ? 'bg-[#F4F6E0] text-[#7C8C03] border border-[#CEDA80]' : 'bg-[#FAFAFA] text-[#BBBBBB] cursor-not-allowed'
-                    : myBet?.bet_value === opt ? 'bg-[#7C8C03] text-white shadow-[0_2px_8px_rgba(124,140,3,0.3)]' : 'bg-[#F5F5F5] text-[#222222] hover:bg-[#E6E6E6]'
+                    ? myBet?.bet_value === opt ? 'bg-[#EBF3FF] text-[#0057B8] border border-[#FFB81C]' : 'bg-[#FAFAFA] text-[#BBBBBB] cursor-not-allowed'
+                    : myBet?.bet_value === opt ? 'bg-[#0057B8] text-white shadow-[0_2px_8px_rgba(124,140,3,0.3)]' : 'bg-[#F5F5F5] text-[#222222] hover:bg-[#E6E6E6]'
                 }`}>{opt}
               </button>
             ))}
@@ -393,7 +394,7 @@ function MatchCard({ match, bets, users, myId, results, onBet }: {
 }) {
   const locked = isLocked(match)
   return (
-    <div className="bg-white rounded-[14px] border border-[#CEDA80] shadow-[0_2px_8px_rgba(124,140,3,0.08)] overflow-hidden">
+    <div className="bg-white rounded-[14px] border border-[#FFB81C] shadow-[0_2px_8px_rgba(124,140,3,0.08)] overflow-hidden">
       <div className="p-4 pb-3">
         <div className="flex items-center justify-between mb-4">
           <span className="text-[11px] font-semibold text-[#49627A] bg-[#F5F7FA] px-2 py-0.5 rounded-full">{match.group}</span>
@@ -559,8 +560,8 @@ export default function DashboardPage() {
 
   if (!me || dbLoading) {
     return (
-      <div className="min-h-[100dvh] bg-[#F5F7FA] flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-[#7C8C03] border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-[100dvh] flex items-center justify-center" style={{ background: '#011638' }}>
+        <div className="w-8 h-8 border-2 border-[#FFB81C] border-t-transparent rounded-full animate-spin" />
       </div>
     )
   }
@@ -568,11 +569,11 @@ export default function DashboardPage() {
   const myBetCount = bets.filter(b => b.user_id === me.id).length
 
   return (
-    <div className="min-h-[100dvh] bg-[#F5F7FA]">
-      <header className="bg-white/80 backdrop-blur-[12px] border-b border-[#E6E6E6] h-14 sticky top-0 z-40 flex items-center justify-between px-5">
-        <div className="flex items-center gap-2">
-          <span className="text-xl">⚽</span>
-          <span className="text-sm font-extrabold text-[#222222] tracking-tight">2026 월드컵 토토</span>
+    <div className="min-h-[100dvh]" style={{ background: '#F0F4FA' }}>
+      <header className="h-14 sticky top-0 z-40 flex items-center justify-between px-5" style={{ background: '#011638', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+        <div className="flex items-center gap-2.5">
+          <Image src="/wc2026-logo.svg" alt="FIFA 2026" width={28} height={28} style={{ objectFit: 'contain' }} />
+          <span className="text-sm font-extrabold tracking-tight text-white">2026 월드컵 토토</span>
         </div>
         <div className="flex items-center gap-2">
           {me.isAdmin && (
@@ -581,20 +582,23 @@ export default function DashboardPage() {
               ADMIN
             </button>
           )}
-          <div className="flex items-center gap-1.5 bg-[#F5F7FA] border border-[#E6E6E6] rounded-full px-3 py-1.5 cursor-pointer" onClick={handleLogout}>
-            <span className="text-xs font-semibold text-[#222222]">{me.displayName}</span>
-            <Icon icon="solar:logout-2-linear" className="w-3.5 h-3.5 text-[#8B8B8B]" />
+          <div className="flex items-center gap-1.5 rounded-full px-3 py-1.5 cursor-pointer" style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)' }} onClick={handleLogout}>
+            <span className="text-xs font-semibold text-white">{me.displayName}</span>
+            <Icon icon="solar:logout-2-linear" className="w-3.5 h-3.5" style={{ color: 'rgba(255,255,255,0.5)' }} />
           </div>
         </div>
       </header>
 
       <main className="max-w-[720px] mx-auto px-4 pb-20">
         <div className="rounded-[20px] p-6 mt-4 mb-4 relative overflow-hidden"
-          style={{ background: 'linear-gradient(135deg, #7C8C03, #A0B020, #CEDA80)' }}>
-          <h1 className="text-white text-2xl font-extrabold tracking-tight break-keep">
-            안녕하세요, {me.displayName}님!
-          </h1>
-          <div className="flex gap-3 mt-4">
+          style={{ background: 'linear-gradient(135deg, #011638 0%, #0057B8 100%)' }}>
+          <div className="flex items-center gap-3 mb-3">
+            <Image src="/wc2026-logo.svg" alt="FIFA 2026" width={44} height={44} style={{ objectFit: 'contain' }} />
+            <h1 className="text-white text-xl font-extrabold tracking-tight break-keep">
+              안녕하세요, {me.displayName}님!
+            </h1>
+          </div>
+          <div className="flex gap-3">
             {(() => {
               const myBets = bets.filter(b => b.user_id === me.id)
               const myCorrect = myBets.filter(b => {
@@ -607,9 +611,9 @@ export default function DashboardPage() {
                 { label: '내 총점', value: `${myScore}점` },
                 { label: '내 승률', value: `${myWinRate}%` },
               ].map(s => (
-                <div key={s.label} className="bg-white/20 rounded-[12px] px-3 py-2 flex-1 text-center">
-                  <p className="text-white text-lg font-extrabold">{s.value}</p>
-                  <p className="text-white/70 text-[10px] font-semibold">{s.label}</p>
+                <div key={s.label} className="rounded-[12px] px-3 py-2 flex-1 text-center" style={{ background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.15)' }}>
+                  <p className="text-lg font-extrabold" style={{ color: '#FFB81C' }}>{s.value}</p>
+                  <p className="text-[10px] font-semibold" style={{ color: 'rgba(255,255,255,0.6)' }}>{s.label}</p>
                 </div>
               ))
             })()}
@@ -643,7 +647,7 @@ export default function DashboardPage() {
             {(['group','knockout'] as const).map(v => (
               <button key={v} onClick={() => { setScheduleView(v); setActiveDateIdx(0) }}
                 className={`text-xs font-semibold px-4 py-2 rounded-full transition-colors ${
-                  scheduleView===v ? 'bg-[#F4F6E0] border border-[#CEDA80] text-[#7C8C03]' : 'bg-white border border-[#E6E6E6] text-[#222222] hover:bg-[#F5F5F5]'
+                  scheduleView===v ? 'bg-[#EBF3FF] border border-[#FFB81C] text-[#0057B8]' : 'bg-white border border-[#E6E6E6] text-[#222222] hover:bg-[#F5F5F5]'
                 }`}>
                 {v==='group' ? '⚽ 조별리그' : '🏆 토너먼트'}
               </button>
@@ -656,7 +660,7 @@ export default function DashboardPage() {
                 {groupDates.map((d, i) => (
                   <button key={d} onClick={() => setActiveDateIdx(i)}
                     className={`flex-shrink-0 text-xs font-semibold px-3 py-1.5 rounded-full transition-colors ${
-                      activeDateIdx===i ? 'bg-[#F4F6E0] border border-[#CEDA80] text-[#7C8C03]' : 'bg-white border border-[#E6E6E6] text-[#222222] hover:bg-[#F5F5F5]'
+                      activeDateIdx===i ? 'bg-[#EBF3FF] border border-[#FFB81C] text-[#0057B8]' : 'bg-white border border-[#E6E6E6] text-[#222222] hover:bg-[#F5F5F5]'
                     }`}>
                     {formatDate(d)}
                   </button>
