@@ -464,13 +464,15 @@ function MyBets({ bets, results, myId }: {
       <div className="flex flex-col gap-3">
         {byMatch.map(({ match, bets: mb, result }) => (
           <div key={match.id} className="bg-white rounded-[14px] border border-[#E6E6E6] shadow-[0_1px_3px_rgba(0,0,0,0.04)] overflow-hidden">
-            <div className="px-4 py-3 border-b border-[#E6E6E6] relative flex flex-col items-center text-center">
-              <span className="text-xs font-semibold text-[#8B8B8B]">{match.dateKST.slice(5).replace('-','/')} {match.timeKST}</span>
-              <span className="text-sm font-bold text-[#222222] mt-0.5">{match.homeFlag} {shortName(match.home)} vs {match.awayFlag} {shortName(match.away)}</span>
+            <div className="px-4 py-3 border-b border-[#E6E6E6] flex items-center justify-between gap-3">
+              <div className="flex flex-col gap-0.5">
+                <span className="text-xs font-semibold text-[#8B8B8B]">{match.dateKST.slice(5).replace('-','/')} {match.timeKST}</span>
+                <span className="text-sm font-bold text-[#222222]">{match.homeFlag} {shortName(match.home)} vs {match.awayFlag} {shortName(match.away)}</span>
+              </div>
               {result ? (
-                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold px-2 py-0.5 rounded-full bg-[#E6EBB8] text-[#7C8C03]">결과 발표</span>
+                <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-[#E6EBB8] text-[#7C8C03] flex-shrink-0">결과 발표</span>
               ) : (
-                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold px-2 py-0.5 rounded-full bg-[#F5F7FA] text-[#49627A]">대기중</span>
+                <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-[#F5F7FA] text-[#49627A] flex-shrink-0">대기중</span>
               )}
             </div>
             <div className="divide-y divide-[#E6E6E6]">
