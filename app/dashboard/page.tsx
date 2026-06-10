@@ -634,21 +634,23 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-[100dvh]" style={{ background: '#F0F4FA' }}>
-      <header className="h-14 sticky top-0 z-40 flex items-center justify-between px-5" style={{ background: '#011638', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
-        <div className="flex items-center gap-2.5">
-          <Image src="/wc2026-logo.svg" alt="FIFA 2026" width={28} height={28} style={{ objectFit: 'contain' }} />
-          <span className="text-sm font-extrabold tracking-tight text-white">2026 월드컵 토토</span>
-        </div>
-        <div className="flex items-center gap-2">
-          {me.isAdmin && (
-            <button onClick={() => router.push('/admin')}
-              className="text-[11px] font-bold text-white bg-[#F94239] px-2.5 py-1 rounded-full">
-              ADMIN
-            </button>
-          )}
-          <div className="flex items-center gap-1.5 rounded-full px-3 py-1.5 cursor-pointer" style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)' }} onClick={handleLogout}>
-            <span className="text-xs font-semibold text-white">{me.displayName}</span>
-            <Icon icon="solar:logout-2-linear" className="w-3.5 h-3.5" style={{ color: 'rgba(255,255,255,0.5)' }} />
+      <header className="h-14 sticky top-0 z-40" style={{ background: '#011638', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+        <div className="max-w-[720px] mx-auto px-4 h-full flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <Image src="/wc2026-logo.svg" alt="FIFA 2026" width={28} height={28} style={{ objectFit: 'contain' }} />
+            <span className="text-sm font-extrabold tracking-tight text-white">2026 월드컵 토토</span>
+          </div>
+          <div className="flex items-center gap-2">
+            {me.isAdmin && (
+              <button onClick={() => router.push('/admin')}
+                className="text-[11px] font-bold text-white bg-[#F94239] px-2.5 py-1 rounded-full">
+                ADMIN
+              </button>
+            )}
+            <div className="flex items-center gap-1.5 rounded-full px-3 py-1.5 cursor-pointer" style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)' }} onClick={handleLogout}>
+              <span className="text-xs font-semibold text-white">{me.displayName}</span>
+              <Icon icon="solar:logout-2-linear" className="w-3.5 h-3.5" style={{ color: 'rgba(255,255,255,0.5)' }} />
+            </div>
           </div>
         </div>
       </header>
