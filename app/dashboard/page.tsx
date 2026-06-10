@@ -236,24 +236,15 @@ function Leaderboard({ users, bets, results }: { users: DBUser[]; bets: DBBet[];
       </div>
       <div className="divide-y divide-[#E6E6E6]">
         {scores.map(({ user, score }, i) => {
-          const myBets = bets.filter(b => b.user_id === user.id)
-          const correctCount = score
-          const winRate = myBets.length > 0 ? Math.round((correctCount / myBets.length) * 100) : 0
           return (
             <div key={user.id} className="flex items-center gap-3 px-4 py-3">
               <span className="text-lg w-6 text-center flex-shrink-0">
                 {i < 3 ? medals[i] : <span className="text-sm font-bold text-[#8B8B8B]">{i + 1}</span>}
               </span>
               <span className="flex-1 text-sm font-semibold text-[#222222]">{user.display_name}</span>
-              <div className="flex items-center gap-3">
-                <div className="text-right">
-                  <span className="text-xl font-extrabold" style={{ color: i === 0 && score > 0 ? '#FFB81C' : '#222222' }}>{score}</span>
-                  <span className="text-xs text-[#8B8B8B] ml-0.5">점</span>
-                </div>
-                <div className="text-right min-w-[48px]">
-                  <span className="text-sm font-bold text-[#49627A]">{winRate}</span>
-                  <span className="text-xs text-[#8B8B8B] ml-0.5">%</span>
-                </div>
+              <div className="flex items-center gap-1">
+                <span className="text-xl font-extrabold" style={{ color: i === 0 && score > 0 ? '#FFB81C' : '#222222' }}>{score}</span>
+                <span className="text-xs text-[#8B8B8B]">점</span>
               </div>
             </div>
           )
