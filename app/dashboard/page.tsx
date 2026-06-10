@@ -6,7 +6,7 @@ import { Icon } from '@iconify/react'
 import { createClient } from '@/lib/supabase'
 import { getSession, clearSession, type WCUser } from '@/lib/worldcup-auth'
 
-type BetType = 'result' | 'score' | 'overunder' | 'firstscorer'
+type BetType = 'result' | 'score' | 'overunder'
 type MatchStage = 'group' | 'r32' | 'r16' | 'qf' | 'sf' | '3rd' | 'final'
 
 interface DBUser   { id: string; username: string; display_name: string; color: string; is_admin: boolean }
@@ -175,7 +175,6 @@ function isLocked(match: Match): boolean {
 function isCorrect(bet: DBBet, result: DBResult): boolean {
   if (bet.bet_type === 'result') return bet.bet_value === result.result
   if (bet.bet_type === 'score') return bet.bet_value === `${result.home_score}:${result.away_score}`
-  if (bet.bet_type === 'firstscorer') return bet.bet_value === result.first_scorer
   if (bet.bet_type === 'overunder') {
     const total = result.home_score + result.away_score
     if (bet.bet_value === '언더 2.5') return total <= 2
@@ -202,7 +201,7 @@ const STAGE_LABELS: Record<MatchStage,string> = {
   group:'조별리그', r32:'32강', r16:'16강', qf:'8강', sf:'4강', '3rd':'3·4위전', final:'결승',
 }
 const BET_LABELS: Record<BetType,string> = {
-  result:'승무패', score:'스코어', overunder:'언더/오버', firstscorer:'최초득점자',
+  result:'승무패', score:'스코어', overunder:'언더/오버',
 }
 const RESULT_OPTIONS = ['홈 승','무승부','원정 승']
 const OU_OPTIONS = ['언더 2.5','오버 2.5','언더 3.5','오버 3.5']
@@ -218,10 +217,9 @@ function Avatar({ user }: { user: DBUser }) {
 
 function BetBadge({ type, value }: { type: BetType; value: string }) {
   const s: Record<BetType, string> = {
-    result:      'bg-[#F4F6E0] text-[#7C8C03] border border-[#CEDA80]',
-    score:       'bg-[#F5F7FA] text-[#49627A] border border-[#E6E6E6]',
-    overunder:   'bg-[#FFF4D8] text-[#FFB803] border border-[#FFB803]/30',
-    firstscorer: 'bg-[#E7F7F3] text-[#01A484] border border-[#01A484]/30',
+    result:    'bg-[#F4F6E0] text-[#7C8C03] border border-[#CEDA80]',
+    score:     'bg-[#F5F7FA] text-[#49627A] border border-[#E6E6E6]',
+    overunder: 'bg-[#FFF4D8] text-[#FFB803] border border-[#FFB803]/30',
   }
   return <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${s[type]}`}>{value}</span>
 }
@@ -232,29 +230,33 @@ function Leaderboard({ users, bets, results }: { users: DBUser[]; bets: DBBet[];
 
   return (
     <div className="bg-white rounded-[14px] border border-[#E6E6E6] shadow-[0_1px_3px_rgba(0,0,0,0.04)] overflow-hidden mb-4">
-      <div className="px-4 py-3 border-b border-[#E6E6E6] flex items-center justify-between">
-        <span className="text-sm font-extrabold text-[#222222]">🏆 순위표</span>
-        {results.length === 0 && <span className="text-[11px] text-[#BBBBBB]">경기 종료 후 집계</span>}
+      <div className="px-4 py-3 border-b border-[#E6E6E6]">
+        <span className="text-sm font-extrabold text-[#222222]">순위표</span>
       </div>
       <div className="divide-y divide-[#E6E6E6]">
-        {scores.map(({ user, score }, i) => (
-          <div key={user.id} className="flex items-center gap-3 px-4 py-3">
-            <span className="text-lg w-6 text-center flex-shrink-0">
-              {i < 3 ? medals[i] : <span className="text-sm font-bold text-[#8B8B8B]">{i + 1}</span>}
-            </span>
-            <div className="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0"
-              style={{ backgroundColor: user.color }}>
-              {user.display_name[0]}
-            </div>
-            <span className="flex-1 text-sm font-semibold text-[#222222]">{user.display_name}</span>
-            <div className="flex items-center gap-1">
-              <span className="text-xl font-extrabold" style={{ color: i === 0 && score > 0 ? '#7C8C03' : '#222222' }}>
-                {score}
+        {scores.map(({ user, score }, i) => {
+          const myBets = bets.filter(b => b.user_id === user.id)
+          const correctCount = score
+          const winRate = myBets.length > 0 ? Math.round((correctCount / myBets.length) * 100) : 0
+          return (
+            <div key={user.id} className="flex items-center gap-3 px-4 py-3">
+              <span className="text-lg w-6 text-center flex-shrink-0">
+                {i < 3 ? medals[i] : <span className="text-sm font-bold text-[#8B8B8B]">{i + 1}</span>}
               </span>
-              <span className="text-xs text-[#8B8B8B]">점</span>
+              <span className="flex-1 text-sm font-semibold text-[#222222]">{user.display_name}</span>
+              <div className="flex items-center gap-3">
+                <div className="text-right">
+                  <span className="text-xl font-extrabold" style={{ color: i === 0 && score > 0 ? '#7C8C03' : '#222222' }}>{score}</span>
+                  <span className="text-xs text-[#8B8B8B] ml-0.5">점</span>
+                </div>
+                <div className="text-right min-w-[48px]">
+                  <span className="text-sm font-bold text-[#49627A]">{winRate}</span>
+                  <span className="text-xs text-[#8B8B8B] ml-0.5">%</span>
+                </div>
+              </div>
             </div>
-          </div>
-        ))}
+          )
+        })}
       </div>
     </div>
   )
@@ -268,14 +270,12 @@ function BetPanel({ match, bets, users, myId, results, onBet }: {
   const [tab, setTab] = useState<BetType>('result')
   const [scoreHome, setScoreHome] = useState('')
   const [scoreAway, setScoreAway] = useState('')
-  const [firstScorer, setFirstScorer] = useState('')
   const [saving, setSaving] = useState(false)
 
   const locked = isLocked(match)
   const matchResult = results.find(r => r.match_id === match.id)
   const matchBets = bets.filter(b => b.match_id === match.id && b.bet_type === tab)
   const myBet = matchBets.find(b => b.user_id === myId)
-  const squad = [...(SQUADS[match.home] ?? []), ...(SQUADS[match.away] ?? [])]
   const isKnockout = match.stage !== 'group'
 
   async function save(type: BetType, value: string) {
@@ -294,7 +294,7 @@ function BetPanel({ match, bets, users, myId, results, onBet }: {
         </div>
       )}
       <div className="flex border-b border-[#E6E6E6] px-4 gap-1 overflow-x-auto no-scrollbar">
-        {(['result', 'score', 'overunder', 'firstscorer'] as BetType[]).map(t => (
+        {(['result', 'score', 'overunder'] as BetType[]).map(t => (
           <button key={t} onClick={() => setTab(t)}
             className={`flex-shrink-0 py-2.5 px-3 text-xs font-semibold border-b-2 transition-colors ${
               tab === t ? 'border-[#7C8C03] text-[#7C8C03]' : 'border-transparent text-[#8B8B8B]'
@@ -315,8 +315,7 @@ function BetPanel({ match, bets, users, myId, results, onBet }: {
                   className={`flex items-center gap-1.5 rounded-full px-2.5 py-1 ${
                     correct === true ? 'bg-[#F4F6E0]' : correct === false ? 'bg-[#FFF5F5]' : 'bg-[#F5F7FA]'
                   }`}>
-                  <Avatar user={u} />
-                  <span className="text-[11px] font-medium text-[#222222]">{u.display_name}</span>
+                  <span className="text-[11px] font-semibold text-[#222222]">{u.display_name}</span>
                   <BetBadge type={b.bet_type} value={b.bet_value} />
                   {correct === true && <Icon icon="solar:check-circle-bold" className="w-3.5 h-3.5 text-[#7C8C03]" />}
                   {correct === false && <Icon icon="solar:close-circle-bold" className="w-3.5 h-3.5 text-[#F94239]" />}
@@ -382,37 +381,6 @@ function BetPanel({ match, bets, users, myId, results, onBet }: {
             ))}
           </div>
         )}
-
-        {tab === 'firstscorer' && (
-          <div>
-            {squad.length > 0 ? (
-              <div className="grid grid-cols-2 gap-2 mb-3">
-                {squad.map(p => (
-                  <button key={p} disabled={locked} onClick={() => { setFirstScorer(p); save('firstscorer', p) }}
-                    className={`py-2.5 px-3 rounded-[10px] text-sm font-semibold text-left transition-all active:scale-[0.97] ${
-                      locked
-                        ? myBet?.bet_value === p ? 'bg-[#F4F6E0] text-[#7C8C03]' : 'bg-[#FAFAFA] text-[#BBBBBB] cursor-not-allowed'
-                        : firstScorer === p || myBet?.bet_value === p ? 'bg-[#7C8C03] text-white' : 'bg-[#F5F5F5] text-[#222222] hover:bg-[#E6E6E6]'
-                    }`}>{p}
-                  </button>
-                ))}
-              </div>
-            ) : (
-              !locked && (
-                <>
-                  <input type="text" value={firstScorer} onChange={e => setFirstScorer(e.target.value)}
-                    placeholder="선수 이름 입력"
-                    className="w-full bg-[#F5F5F5] border border-[#E6E6E6] rounded-[10px] px-4 py-3 text-sm text-[#222222] placeholder:text-[#999999] focus:outline-none focus:bg-white focus:border-[#222222] transition-colors mb-3" />
-                  <button onClick={() => { if (firstScorer) save('firstscorer', firstScorer) }}
-                    disabled={saving || !firstScorer}
-                    className="w-full bg-[#7C8C03] text-white py-2.5 rounded-[12px] text-sm font-semibold hover:bg-[#5A6602] active:scale-[0.98] disabled:bg-[#FAFAFA] disabled:text-[#BBBBBB] transition-all">
-                    저장
-                  </button>
-                </>
-              )
-            )}
-          </div>
-        )}
       </div>
     </div>
   )
@@ -456,13 +424,10 @@ function MatchCard({ match, bets, users, myId, results, onBet }: {
   )
 }
 
-function ScheduleRow({ match, bets, users, myId, results, expanded, onToggle, onBet }: {
-  match: Match; bets: DBBet[]; users: DBUser[]; myId: string
-  results: DBResult[]
+function ScheduleRow({ match, expanded, onToggle }: {
+  match: Match
   expanded: boolean; onToggle: () => void
-  onBet: (matchId: string, t: BetType, v: string) => Promise<void>
 }) {
-  const hasBet = bets.some(b => b.match_id === match.id && b.user_id === myId)
   return (
     <div className={expanded ? 'bg-[#F5F7FA]' : ''}>
       <button onClick={onToggle} className="w-full text-left flex items-center gap-3 px-4 py-3 hover:bg-[#F5F7FA] transition-colors">
@@ -481,14 +446,13 @@ function ScheduleRow({ match, bets, users, myId, results, expanded, onToggle, on
           {match.stage === 'group' && (
             <span className="text-[10px] font-semibold text-[#49627A] bg-[#F5F7FA] px-1.5 py-0.5 rounded-full">{match.group}</span>
           )}
-          {hasBet && <Icon icon="solar:check-circle-bold" className="w-3.5 h-3.5 text-[#7C8C03]" />}
           <Icon icon={expanded ? 'solar:alt-arrow-up-linear' : 'solar:alt-arrow-down-linear'}
             className="w-3.5 h-3.5 text-[#BBBBBB]" />
         </div>
       </button>
       {expanded && (
-        <div className="bg-white mx-3 mb-3 rounded-[12px] border border-[#E6E6E6] overflow-hidden">
-          <div className="flex items-center justify-center gap-4 py-3 border-b border-[#E6E6E6]">
+        <div className="bg-white mx-3 mb-3 rounded-[12px] border border-[#E6E6E6] px-4 py-3">
+          <div className="flex items-center justify-center gap-4">
             <div className="flex items-center gap-2">
               <span className="text-2xl">{match.homeFlag}</span>
               <span className="text-sm font-bold text-[#222222]">{match.home}</span>
@@ -499,7 +463,9 @@ function ScheduleRow({ match, bets, users, myId, results, expanded, onToggle, on
               <span className="text-2xl">{match.awayFlag}</span>
             </div>
           </div>
-          <BetPanel match={match} bets={bets} users={users} myId={myId} results={results} onBet={onBet} />
+          <p className="text-[11px] text-[#BBBBBB] mt-2 flex items-center justify-center gap-1">
+            <Icon icon="solar:map-point-linear" className="w-3 h-3 flex-shrink-0" />{match.venue}
+          </p>
         </div>
       )}
     </div>
@@ -606,7 +572,7 @@ export default function DashboardPage() {
       <header className="bg-white/80 backdrop-blur-[12px] border-b border-[#E6E6E6] h-14 sticky top-0 z-40 flex items-center justify-between px-5">
         <div className="flex items-center gap-2">
           <span className="text-xl">⚽</span>
-          <span className="text-sm font-extrabold text-[#222222] tracking-tight">월드컵 토토 2026</span>
+          <span className="text-sm font-extrabold text-[#222222] tracking-tight">2026 월드컵 토토</span>
         </div>
         <div className="flex items-center gap-2">
           {me.isAdmin && (
@@ -616,10 +582,6 @@ export default function DashboardPage() {
             </button>
           )}
           <div className="flex items-center gap-1.5 bg-[#F5F7FA] border border-[#E6E6E6] rounded-full px-3 py-1.5 cursor-pointer" onClick={handleLogout}>
-            <div className="w-5 h-5 rounded-full flex items-center justify-center text-white text-[9px] font-bold flex-shrink-0"
-              style={{ backgroundColor: me.color }}>
-              {me.displayName[0]}
-            </div>
             <span className="text-xs font-semibold text-[#222222]">{me.displayName}</span>
             <Icon icon="solar:logout-2-linear" className="w-3.5 h-3.5 text-[#8B8B8B]" />
           </div>
@@ -629,36 +591,32 @@ export default function DashboardPage() {
       <main className="max-w-[720px] mx-auto px-4 pb-20">
         <div className="rounded-[20px] p-6 mt-4 mb-4 relative overflow-hidden"
           style={{ background: 'linear-gradient(135deg, #7C8C03, #A0B020, #CEDA80)' }}>
-          <p className="text-white/70 text-xs font-semibold mb-1">FIFA 월드컵 2026 · 북중미 공동개최</p>
           <h1 className="text-white text-2xl font-extrabold tracking-tight break-keep">
             안녕하세요, {me.displayName}님!
           </h1>
-          <p className="text-white/70 text-sm mt-1 break-keep">6월 12일 개막 · 7월 20일 결승 · 48개국</p>
           <div className="flex gap-3 mt-4">
-            {[
-              { label: '조별 경기', value: ALL_MATCHES.filter(x=>x.stage==='group').length },
-              { label: '내 픽', value: myBetCount },
-              { label: '전체 픽', value: bets.length },
-            ].map(s => (
-              <div key={s.label} className="bg-white/20 rounded-[12px] px-3 py-2 flex-1 text-center">
-                <p className="text-white text-lg font-extrabold">{s.value}</p>
-                <p className="text-white/70 text-[10px] font-semibold">{s.label}</p>
-              </div>
-            ))}
+            {(() => {
+              const myBets = bets.filter(b => b.user_id === me.id)
+              const myCorrect = myBets.filter(b => {
+                const r = results.find(r => r.match_id === b.match_id)
+                return r && isCorrect(b, r)
+              }).length
+              const myScore = myCorrect
+              const myWinRate = myBets.length > 0 ? Math.round((myCorrect / myBets.length) * 100) : 0
+              return [
+                { label: '내 총점', value: `${myScore}점` },
+                { label: '내 승률', value: `${myWinRate}%` },
+              ].map(s => (
+                <div key={s.label} className="bg-white/20 rounded-[12px] px-3 py-2 flex-1 text-center">
+                  <p className="text-white text-lg font-extrabold">{s.value}</p>
+                  <p className="text-white/70 text-[10px] font-semibold">{s.label}</p>
+                </div>
+              ))
+            })()}
           </div>
         </div>
 
         <Leaderboard users={users} bets={bets} results={results} />
-
-        <div className="flex items-center gap-2 mb-4 flex-wrap">
-          {users.map(u => (
-            <div key={u.id} className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 border ${u.id===me.id ? 'bg-[#F4F6E0] border-[#CEDA80]' : 'bg-white border-[#E6E6E6]'}`}>
-              <Avatar user={u} />
-              <span className="text-xs font-semibold text-[#222222]">{u.display_name}</span>
-              <span className="text-[10px] text-[#8B8B8B]">{bets.filter(b=>b.user_id===u.id).length}픽</span>
-            </div>
-          ))}
-        </div>
 
         <section className="mb-6">
           <div className="flex items-center justify-between mb-3">
@@ -706,8 +664,7 @@ export default function DashboardPage() {
               </div>
               <div className="bg-white rounded-[14px] border border-[#E6E6E6] shadow-[0_1px_3px_rgba(0,0,0,0.04)] overflow-hidden divide-y divide-[#E6E6E6]">
                 {ALL_MATCHES.filter(x => x.stage==='group' && x.dateKST===groupDates[activeDateIdx]).map(match => (
-                  <ScheduleRow key={match.id} match={match} bets={bets} users={users} myId={me.id}
-                    results={results} expanded={expandedId === match.id} onToggle={() => setExpandedId(prev => prev === match.id ? null : match.id)} onBet={handleBet} />
+                  <ScheduleRow key={match.id} match={match} expanded={expandedId === match.id} onToggle={() => setExpandedId(prev => prev === match.id ? null : match.id)} />
                 ))}
               </div>
             </>
@@ -726,8 +683,7 @@ export default function DashboardPage() {
                     </div>
                     <div className="divide-y divide-[#E6E6E6]">
                       {sm.map(match => (
-                        <ScheduleRow key={match.id} match={match} bets={bets} users={users} myId={me.id}
-                          results={results} expanded={expandedId === match.id} onToggle={() => setExpandedId(prev => prev === match.id ? null : match.id)} onBet={handleBet} />
+                        <ScheduleRow key={match.id} match={match} expanded={expandedId === match.id} onToggle={() => setExpandedId(prev => prev === match.id ? null : match.id)} />
                       ))}
                     </div>
                   </div>

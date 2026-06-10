@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: '⚽ 월드컵 토토 2026',
+  title: '⚽ 2026 월드컵 토토',
   description: '친구들과 함께하는 2026 북중미 월드컵 승부 예측',
 }
 

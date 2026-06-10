@@ -86,7 +86,7 @@ export default function LoginPage() {
         >
           <span className="text-4xl">⚽</span>
         </div>
-        <h1 className="text-2xl font-extrabold text-[#222222] tracking-tight">월드컵 토토 2026</h1>
+        <h1 className="text-2xl font-extrabold text-[#222222] tracking-tight">2026 월드컵 토토</h1>
         <p className="text-sm text-[#8B8B8B] mt-1">친구들과 함께하는 승부 예측</p>
       </div>
 
