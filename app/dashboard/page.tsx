@@ -474,14 +474,16 @@ function MyBets({ bets, results, myId }: {
       <div className="flex flex-col gap-3">
         {byMatch.map(({ match, bets: mb, result }) => (
           <div key={match.id} className="bg-white rounded-[14px] border border-[#E6E6E6] shadow-[0_1px_3px_rgba(0,0,0,0.04)] overflow-hidden">
-            <div className="px-4 py-3 border-b border-[#E6E6E6] flex items-center gap-2 bg-[#F5F7FA]">
-              <span className="text-xs font-semibold text-[#8B8B8B] flex-shrink-0">{match.dateKST.slice(5).replace('-','/')} {match.timeKST}</span>
+            <div className="px-4 py-3 border-b border-[#E6E6E6] flex items-center bg-[#F5F7FA]">
+              <span className="w-24 text-xs font-semibold text-[#8B8B8B] flex-shrink-0">{match.dateKST.slice(5).replace('-','/')} {match.timeKST}</span>
               <p className="flex-1 text-sm font-bold text-[#222222] text-center">{shortName(match.home)} vs {shortName(match.away)}</p>
-              {result ? (
-                <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-[#E6EBB8] text-[#7C8C03] flex-shrink-0">결과 발표</span>
-              ) : (
-                <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-[#F5F7FA] text-[#49627A] flex-shrink-0">대기중</span>
-              )}
+              <div className="w-24 flex justify-end flex-shrink-0">
+                {result ? (
+                  <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-[#E6EBB8] text-[#7C8C03]">결과 발표</span>
+                ) : (
+                  <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-[#F5F7FA] text-[#49627A]">대기중</span>
+                )}
+              </div>
             </div>
             <div className="divide-y divide-[#E6E6E6]">
               {mb.map(bet => {
