@@ -237,7 +237,7 @@ function Leaderboard({ users, bets, results }: { users: DBUser[]; bets: DBBet[];
       <div className="divide-y divide-[#E6E6E6]">
         {scores.map(({ user, score }, i) => {
           return (
-            <div key={user.id} className="flex items-center gap-3 px-4 py-3">
+            <div key={user.id} className="flex items-center gap-3 px-6 py-3.5">
               <span className="text-lg w-6 text-center flex-shrink-0">
                 {i < 3 ? medals[i] : <span className="text-sm font-bold text-[#8B8B8B]">{i + 1}</span>}
               </span>
@@ -392,7 +392,7 @@ function MatchCard({ match, bets, users, myId, results, onBet }: {
           <div className="flex items-center gap-1.5">
             {locked
               ? <span className="text-[11px] font-bold text-[#8B8B8B] flex items-center gap-1"><Icon icon="solar:lock-bold" className="w-3 h-3"/>마감</span>
-              : <span className="text-[11px] text-[#8B8B8B] font-medium">{match.timeKST} KST</span>
+              : <span className="text-[11px] text-[#8B8B8B] font-medium">{match.dateKST.slice(5).replace('-','/')} {match.timeKST} KST</span>
             }
           </div>
         </div>
@@ -583,9 +583,9 @@ export default function DashboardPage() {
       <main className="max-w-[720px] mx-auto px-4 pb-20">
         <div className="rounded-[20px] p-6 mt-4 mb-4 relative overflow-hidden"
           style={{ background: 'linear-gradient(135deg, #011638 0%, #0057B8 100%)' }}>
-          <div className="flex items-center gap-3 mb-3">
-            <Image src="/wc2026-logo.svg" alt="FIFA 2026" width={44} height={44} style={{ objectFit: 'contain' }} />
-            <h1 className="text-white text-xl font-extrabold tracking-tight break-keep">
+          <div className="flex flex-col items-center mb-4">
+            <Image src="/wc2026-logo.svg" alt="FIFA 2026" width={96} height={96} style={{ objectFit: 'contain' }} />
+            <h1 className="text-white text-xl font-extrabold tracking-tight break-keep mt-2">
               안녕하세요, {me.displayName}님!
             </h1>
           </div>
@@ -616,7 +616,6 @@ export default function DashboardPage() {
         <section className="mb-6">
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-base font-extrabold text-[#222222] tracking-tight">{dashLabel}</h2>
-            {dashMatches[0] && <span className="text-xs text-[#8B8B8B]">{dashMatches[0].dateKST.slice(5).replace('-','/')} · KST</span>}
           </div>
           {dashMatches.length > 0 ? (
             <div className="flex flex-col gap-3">
