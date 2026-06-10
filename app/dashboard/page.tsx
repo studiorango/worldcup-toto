@@ -546,7 +546,7 @@ export default function DashboardPage() {
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const [scheduleView, setScheduleView] = useState<'group'|'knockout'>('group')
   const [activeDateIdx, setActiveDateIdx] = useState(0)
-  const [mainTab, setMainTab] = useState<'schedule'|'mybets'>('schedule')
+  const [mainTab, setMainTab] = useState<'schedule'|'mybets'|'leaderboard'>('schedule')
   const [dbLoading, setDbLoading] = useState(true)
   const [toast, setToast] = useState('')
 
@@ -684,25 +684,24 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        <Leaderboard users={users} bets={bets} results={results} />
-
         {/* 메인 탭 */}
         <div className="flex bg-white rounded-[12px] border border-[#E6E6E6] p-1 mb-4">
-          {(['schedule','mybets'] as const).map(t => (
+          {(['schedule','mybets','leaderboard'] as const).map(t => (
             <button key={t} onClick={() => setMainTab(t)}
               className={`flex-1 py-2 text-sm font-semibold rounded-[9px] transition-all duration-150 ${
                 mainTab===t ? 'bg-[#011638] text-white shadow-sm' : 'text-[#8B8B8B] hover:text-[#222222]'
               }`}>
-              {t==='schedule' ? '경기 일정' : '내 베팅'}
+              {t==='schedule' ? '경기 일정' : t==='mybets' ? '내 베팅' : '순위표'}
             </button>
           ))}
         </div>
 
         {mainTab === 'mybets' ? (
           <MyBets bets={bets} results={results} myId={me.id} />
+        ) : mainTab === 'leaderboard' ? (
+          <Leaderboard users={users} bets={bets} results={results} />
         ) : (
         <section className="mb-6">
-          <h2 className="text-base font-extrabold text-[#222222] tracking-tight mb-3">경기 일정</h2>
 
           <div className="flex gap-2 mb-3">
             {(['group','knockout'] as const).map(v => (
