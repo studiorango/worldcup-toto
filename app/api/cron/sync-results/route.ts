@@ -72,7 +72,7 @@ export async function GET(req: Request) {
 
     const scoreStr = `${homeScore}:${awayScore}`
     const totalGoals = homeScore + awayScore
-    const overUnder = totalGoals > 2.5 ? '오버' : '언더'
+    const overUnder = totalGoals >= 3 ? '오버 2.5' : '언더 2.5'
 
     // upsert 결과 저장
     const { error } = await supabase.from('worldcup_match_results').upsert({

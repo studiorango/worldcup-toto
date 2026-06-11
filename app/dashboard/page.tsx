@@ -119,7 +119,7 @@ function AdminPanel({ results, onSaved }: { results: DBResult[]; onSaved: () => 
     const as_ = parseInt(awayScore)
     const result = hs > as_ ? '홈 승' : as_ > hs ? '원정 승' : '무승부'
     const score = `${hs}:${as_}`
-    const over_under = hs + as_ > 2 ? '오버' : '언더'
+    const over_under = hs + as_ >= 3 ? '오버 2.5' : '언더 2.5'
 
     const { error } = await supabase.from('worldcup_match_results').upsert({
       match_id: selectedId, home_score: hs, away_score: as_,
