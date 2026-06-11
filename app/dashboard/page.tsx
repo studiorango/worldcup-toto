@@ -427,9 +427,6 @@ function MatchCard({ match, bets, users, myId, results, onBet }: {
             <span className="text-base font-extrabold text-[#222222] text-center break-keep">{match.away}</span>
           </div>
         </div>
-        <p className="text-[11px] text-[#BBBBBB] mt-3 flex items-center justify-center gap-1">
-          <Icon icon="solar:map-point-linear" className="w-3 h-3 flex-shrink-0" />{match.venue}
-        </p>
       </div>
       <BetPanel match={match} bets={bets} users={users} myId={myId} results={results} onBet={onBet} />
     </div>
@@ -553,9 +550,6 @@ function ScheduleRow({ match, expanded, onToggle }: {
               <span className="text-2xl">{match.awayFlag}</span>
             </div>
           </div>
-          <p className="text-[11px] text-[#BBBBBB] mt-2 flex items-center justify-center gap-1">
-            <Icon icon="solar:map-point-linear" className="w-3 h-3 flex-shrink-0" />{match.venue}
-          </p>
         </div>
       )}
     </div>
