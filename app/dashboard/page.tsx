@@ -83,6 +83,114 @@ const BET_LABELS: Record<BetType,string> = {
 const RESULT_OPTIONS = ['홈 승','무승부','원정 승']
 const OU_OPTIONS = ['언더 2.5','오버 2.5']
 
+function AdminPanel({ results, onSaved }: { results: DBResult[]; onSaved: () => void }) {
+  const supabase = createClient()
+  const now = Date.now()
+
+  // 경기 시작 후 90분 이상 지난 경기 (결과 입력 가능)
+  const finishedMatches = ALL_MATCHES.filter(m => {
+    const t = new Date(`${m.dateKST}T${m.timeKST}:00+09:00`).getTime()
+    return now >= t + 90 * 60 * 1000
+  })
+
+  const [selectedId, setSelectedId] = useState(finishedMatches[0]?.id ?? '')
+  const [homeScore, setHomeScore] = useState('')
+  const [awayScore, setAwayScore] = useState('')
+  const [saving, setSaving] = useState(false)
+  const [msg, setMsg] = useState('')
+
+  const selectedMatch = ALL_MATCHES.find(m => m.id === selectedId)
+  const existingResult = results.find(r => r.match_id === selectedId)
+
+  useEffect(() => {
+    if (existingResult) {
+      setHomeScore(String(existingResult.home_score))
+      setAwayScore(String(existingResult.away_score))
+    } else {
+      setHomeScore('')
+      setAwayScore('')
+    }
+  }, [selectedId, existingResult])
+
+  async function handleSave() {
+    if (!selectedMatch || homeScore === '' || awayScore === '') return
+    setSaving(true)
+    const hs = parseInt(homeScore)
+    const as_ = parseInt(awayScore)
+    const result = hs > as_ ? '홈 승' : as_ > hs ? '원정 승' : '무승부'
+    const score = `${hs}:${as_}`
+    const over_under = hs + as_ > 2 ? '오버' : '언더'
+
+    const { error } = await supabase.from('worldcup_match_results').upsert({
+      match_id: selectedId, home_score: hs, away_score: as_,
+      result, score, over_under,
+    }, { onConflict: 'match_id' })
+
+    if (!error) {
+      setMsg('저장 완료!')
+      onSaved()
+    } else {
+      setMsg('저장 실패: ' + error.message)
+    }
+    setSaving(false)
+    setTimeout(() => setMsg(''), 3000)
+  }
+
+  if (finishedMatches.length === 0) return null
+
+  return (
+    <div className="bg-white rounded-[14px] border-2 border-[#CEDA80] p-4 mb-4">
+      <div className="flex items-center gap-2 mb-3">
+        <Icon icon="solar:settings-bold" className="w-4 h-4 text-[#7C8C03]" />
+        <span className="text-sm font-extrabold text-[#222222]">결과 수동 입력</span>
+        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[#E6EBB8] text-[#7C8C03]">관리자</span>
+      </div>
+
+      <select
+        value={selectedId}
+        onChange={e => setSelectedId(e.target.value)}
+        className="w-full bg-[#F5F5F5] border border-[#E6E6E6] rounded-[10px] px-3 py-2.5 text-sm text-[#222222] mb-3 focus:outline-none focus:border-[#222222]">
+        {finishedMatches.map(m => {
+          const hasResult = results.some(r => r.match_id === m.id)
+          return (
+            <option key={m.id} value={m.id}>
+              {hasResult ? '✓ ' : ''}{m.dateKST.slice(5)} {m.timeKST} {shortName(m.home)} vs {shortName(m.away)}
+            </option>
+          )
+        })}
+      </select>
+
+      {selectedMatch && (
+        <div className="flex items-center gap-3 mb-3">
+          <div className="flex-1 text-center">
+            <p className="text-xs text-[#8B8B8B] mb-1">{selectedMatch.homeFlag} {shortName(selectedMatch.home)}</p>
+            <input
+              type="number" min="0" max="20" value={homeScore}
+              onChange={e => setHomeScore(e.target.value)}
+              placeholder="0"
+              className="w-full text-center text-2xl font-extrabold bg-[#F5F5F5] border border-[#E6E6E6] rounded-[10px] py-2 focus:outline-none focus:border-[#222222] text-[#222222]" />
+          </div>
+          <span className="text-lg font-bold text-[#BBBBBB] mt-4">:</span>
+          <div className="flex-1 text-center">
+            <p className="text-xs text-[#8B8B8B] mb-1">{selectedMatch.awayFlag} {shortName(selectedMatch.away)}</p>
+            <input
+              type="number" min="0" max="20" value={awayScore}
+              onChange={e => setAwayScore(e.target.value)}
+              placeholder="0"
+              className="w-full text-center text-2xl font-extrabold bg-[#F5F5F5] border border-[#E6E6E6] rounded-[10px] py-2 focus:outline-none focus:border-[#222222] text-[#222222]" />
+          </div>
+        </div>
+      )}
+
+      <button onClick={handleSave} disabled={saving || homeScore === '' || awayScore === ''}
+        className="w-full bg-[#7C8C03] text-white py-2.5 rounded-[10px] text-sm font-semibold disabled:opacity-40 transition-colors hover:bg-[#5A6602]">
+        {saving ? '저장 중...' : existingResult ? '결과 수정' : '결과 저장'}
+      </button>
+      {msg && <p className="text-xs text-center mt-2 text-[#7C8C03] font-semibold">{msg}</p>}
+    </div>
+  )
+}
+
 function Avatar({ user }: { user: DBUser }) {
   return (
     <div className="w-6 h-6 rounded-full flex items-center justify-center text-white font-bold text-[10px] flex-shrink-0 ring-2 ring-white"
@@ -534,6 +642,11 @@ export default function DashboardPage() {
       </header>
 
       <main className="max-w-[720px] mx-auto px-4 pb-20">
+        {me.isAdmin && (
+          <div className="mt-4">
+            <AdminPanel results={results} onSaved={loadData} />
+          </div>
+        )}
         <div className="rounded-[20px] p-6 mt-4 mb-4 relative overflow-hidden"
           style={{ background: 'linear-gradient(135deg, #011638 0%, #0057B8 100%)' }}>
           <div className="flex flex-col items-center mb-4">
