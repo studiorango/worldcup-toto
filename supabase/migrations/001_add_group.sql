@@ -26,5 +26,6 @@ insert into worldcup_users (username, display_name, pin_hash, color, is_admin, "
   ('지구_정흠',   '조정흠', encode(digest('8611', 'sha256'), 'hex'), '#059669', false, '지구'),
   ('지구_재휘',   '한재휘', encode(digest('7109', 'sha256'), 'hex'), '#7C3AED', false, '지구'),
   ('지구_혜조',   '한혜조', encode(digest('3316', 'sha256'), 'hex'), '#DB2777', false, '지구'),
-  ('지구_혜림',   '서혜림', encode(digest('2014', 'sha256'), 'hex'), '#0284C7', false, '지구')
+  ('지구_혜림',   '서혜림', encode(digest('2014', 'sha256'), 'hex'), '#0284C7', false, '지구'),
+  ('지구_희원',   '이희원', encode(digest('8911', 'sha256'), 'hex'), '#65A30D', false, '지구')
 on conflict (username) do nothing;
