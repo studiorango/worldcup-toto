@@ -730,7 +730,7 @@ export default function DashboardPage() {
 
           {scheduleView === 'group' ? (
             <>
-              <div className="grid grid-cols-4 gap-2 mb-3">
+              <div className="grid grid-cols-6 gap-2 mb-3">
                 {groupDates.map((d, i) => (
                   <button key={d} onClick={() => setActiveDateIdx(i)}
                     className={`py-2 text-xs font-semibold rounded-[10px] transition-colors ${
