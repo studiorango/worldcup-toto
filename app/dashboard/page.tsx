@@ -406,7 +406,7 @@ function MatchCard({ match, bets, users, myId, results, onBet }: {
   const locked = isLocked(match)
   return (
     <div className="bg-white rounded-[14px] border border-[#FFB81C] shadow-[0_2px_8px_rgba(124,140,3,0.08)] overflow-hidden">
-      <div className="p-4 pb-3">
+      <div className="p-4 pb-5">
         <div className="flex items-center justify-between mb-4">
           <span className="text-[11px] font-semibold text-[#49627A] bg-[#F5F7FA] px-2 py-0.5 rounded-full">{match.group}</span>
           <div className="flex items-center gap-1.5">
