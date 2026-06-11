@@ -606,7 +606,7 @@ export default function DashboardPage() {
 
   function formatDate(d: string) {
     const dt = new Date(d + 'T00:00:00')
-    return `${dt.getMonth()+1}/${dt.getDate()}(${['일','월','화','수','목','금','토'][dt.getDay()]})`
+    return `${dt.getDate()}(${['일','월','화','수','목','금','토'][dt.getDay()]})`
   }
 
   async function handleBet(matchId: string, type: BetType, value: string) {
