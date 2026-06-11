@@ -729,26 +729,24 @@ export default function DashboardPage() {
           </div>
 
           {scheduleView === 'group' ? (
-            <div className="flex flex-col gap-6">
-              {groupDates.map(d => {
-                const dayMatches = ALL_MATCHES.filter(x => x.stage === 'group' && x.dateKST === d)
-                if (dayMatches.length === 0) return null
-                return (
-                  <div key={d}>
-                    <div className="flex items-center gap-2 mb-2 px-1">
-                      <span className="text-xs font-extrabold text-[#222222]">{formatDate(d)}</span>
-                      <span className="text-[10px] text-[#8B8B8B]">{dayMatches.length}경기</span>
-                    </div>
-                    <div className="flex flex-col gap-3">
-                      {dayMatches.map(match => (
-                        <MatchCard key={match.id} match={match} bets={groupBets} users={users} myId={me.id}
-                          results={results} onBet={handleBet} />
-                      ))}
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
+            <>
+              <div className="grid grid-cols-4 gap-2 mb-3">
+                {groupDates.map((d, i) => (
+                  <button key={d} onClick={() => setActiveDateIdx(i)}
+                    className={`py-2 text-xs font-semibold rounded-[10px] transition-colors ${
+                      activeDateIdx === i ? 'bg-[#011638] text-white' : 'bg-white border border-[#E6E6E6] text-[#222222] hover:bg-[#F5F5F5]'
+                    }`}>
+                    {formatDate(d)}
+                  </button>
+                ))}
+              </div>
+              <div className="flex flex-col gap-3">
+                {ALL_MATCHES.filter(x => x.stage === 'group' && x.dateKST === groupDates[activeDateIdx]).map(match => (
+                  <MatchCard key={match.id} match={match} bets={groupBets} users={users} myId={me.id}
+                    results={results} onBet={handleBet} />
+                ))}
+              </div>
+            </>
           ) : (
             <div className="flex flex-col gap-3">
               {knockoutStages.map(stage => {
