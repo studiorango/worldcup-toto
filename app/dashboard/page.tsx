@@ -657,7 +657,9 @@ export default function DashboardPage() {
     )
   }
 
-  const myBetCount = bets.filter(b => b.user_id === me.id).length
+  const groupUserIds = new Set(users.filter(u => u.group === me.group).map(u => u.id))
+  const groupBets = bets.filter(b => groupUserIds.has(b.user_id))
+  const myBetCount = groupBets.filter(b => b.user_id === me.id).length
 
   return (
     <div className="min-h-[100dvh]" style={{ background: '#F0F4FA' }}>
@@ -682,7 +684,7 @@ export default function DashboardPage() {
           </div>
           <div className="flex gap-3">
             {(() => {
-              const myBets = bets.filter(b => b.user_id === me.id)
+              const myBets = groupBets.filter(b => b.user_id === me.id)
               const myCorrect = myBets.filter(b => {
                 const r = results.find(r => r.match_id === b.match_id)
                 return r && isCorrect(b, r)
@@ -715,9 +717,9 @@ export default function DashboardPage() {
         </div>
 
         {mainTab === 'mybets' ? (
-          <MyBets bets={bets} results={results} myId={me.id} />
+          <MyBets bets={groupBets} results={results} myId={me.id} />
         ) : mainTab === 'leaderboard' ? (
-          <Leaderboard users={users.filter(u => u.group === me.group)} bets={bets} results={results} />
+          <Leaderboard users={users.filter(u => u.group === me.group)} bets={groupBets} results={results} />
         ) : (
         <section className="mb-6">
 
@@ -746,7 +748,7 @@ export default function DashboardPage() {
               </div>
               <div className="flex flex-col gap-3">
                 {ALL_MATCHES.filter(x => x.stage==='group' && x.dateKST===groupDates[activeDateIdx]).map(match => (
-                  <MatchCard key={match.id} match={match} bets={bets} users={users} myId={me.id}
+                  <MatchCard key={match.id} match={match} bets={groupBets} users={users} myId={me.id}
                     results={results} onBet={handleBet} />
                 ))}
               </div>
@@ -767,7 +769,7 @@ export default function DashboardPage() {
                     </div>
                     <div className="flex flex-col gap-3">
                       {sm.map(match => (
-                        <MatchCard key={match.id} match={match} bets={bets} users={users} myId={me.id}
+                        <MatchCard key={match.id} match={match} bets={groupBets} users={users} myId={me.id}
                           results={results} onBet={handleBet} />
                       ))}
                     </div>
