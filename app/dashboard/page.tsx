@@ -10,7 +10,7 @@ import { getSession, clearSession, type WCUser } from '@/lib/worldcup-auth'
 type BetType = 'result' | 'score' | 'overunder'
 type MatchStage = 'group' | 'r32' | 'r16' | 'qf' | 'sf' | '3rd' | 'final'
 
-interface DBUser   { id: string; username: string; display_name: string; color: string; is_admin: boolean }
+interface DBUser   { id: string; username: string; display_name: string; color: string; is_admin: boolean; group: string }
 interface DBBet    { id: string; user_id: string; match_id: string; bet_type: BetType; bet_value: string }
 interface DBResult {
   match_id: string
@@ -717,7 +717,7 @@ export default function DashboardPage() {
         {mainTab === 'mybets' ? (
           <MyBets bets={bets} results={results} myId={me.id} />
         ) : mainTab === 'leaderboard' ? (
-          <Leaderboard users={users} bets={bets} results={results} />
+          <Leaderboard users={users.filter(u => u.group === me.group)} bets={bets} results={results} />
         ) : (
         <section className="mb-6">
 

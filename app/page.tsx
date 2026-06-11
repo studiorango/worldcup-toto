@@ -6,14 +6,24 @@ import { createClient } from '@/lib/supabase'
 import { hashPin, saveSession, getSession } from '@/lib/worldcup-auth'
 import Image from 'next/image'
 
-const PARTICIPANTS = [
-  { username: '민제', displayName: '김민제', color: '#0057B8' },
-  { username: '병운', displayName: '황병운', color: '#B8860B' },
-  { username: '경민', displayName: '이경민', color: '#C0392B' },
+const SERVERS = [
+  { id: '퇴계원', label: '퇴계원', emoji: '🏘️' },
+  { id: '지구',   label: '지구',   emoji: '🌍' },
 ]
+
+interface DBUser {
+  id: string
+  username: string
+  display_name: string
+  color: string
+  is_admin: boolean
+  group: string
+}
 
 export default function LoginPage() {
   const router = useRouter()
+  const [server, setServer] = useState<string | null>(null)
+  const [users, setUsers] = useState<DBUser[]>([])
   const [selected, setSelected] = useState<string | null>(null)
   const [pin, setPin] = useState('')
   const [loading, setLoading] = useState(false)
@@ -25,6 +35,20 @@ export default function LoginPage() {
     if (session) { router.replace('/dashboard'); return }
     setReady(true)
   }, [router])
+
+  async function selectServer(s: string) {
+    setServer(s)
+    setSelected(null)
+    setPin('')
+    setError('')
+    const supabase = createClient()
+    const { data } = await supabase
+      .from('worldcup_users')
+      .select('id, username, display_name, color, is_admin, group')
+      .eq('group', s)
+      .order('display_name')
+    setUsers(data ?? [])
+  }
 
   function selectUser(username: string) {
     setSelected(username)
@@ -41,28 +65,25 @@ export default function LoginPage() {
       const supabase = createClient()
       const { data, error: dbErr } = await supabase
         .from('worldcup_users')
-        .select('id, username, display_name, color, is_admin')
+        .select('id, username, display_name, color, is_admin, group')
         .eq('username', selected)
         .eq('pin_hash', pinHash)
         .single()
 
-      if (dbErr) {
-        if (dbErr.code === 'PGRST116') {
-          setError('비밀번호가 틀렸어요.')
-        } else {
-          setError(`DB 오류: ${dbErr.message}`)
-        }
-        setPin('')
-        setLoading(false)
-        return
-      }
-      if (!data) {
+      if (dbErr || !data) {
         setError('비밀번호가 틀렸어요.')
         setPin('')
         setLoading(false)
         return
       }
-      saveSession({ id: data.id, username: data.username, displayName: data.display_name, color: data.color, isAdmin: data.is_admin })
+      saveSession({
+        id: data.id,
+        username: data.username,
+        displayName: data.display_name,
+        color: data.color,
+        isAdmin: data.is_admin,
+        group: data.group,
+      })
       router.replace('/dashboard')
     } catch {
       setError('오류가 발생했어요.')
@@ -76,10 +97,12 @@ export default function LoginPage() {
     </div>
   )
 
-  const selectedUser = PARTICIPANTS.find(p => p.username === selected)
+  const selectedUser = users.find(u => u.username === selected)
 
   return (
-    <div className="min-h-[100dvh] flex flex-col items-center justify-center px-5" style={{ background: 'linear-gradient(160deg, #011638 0%, #02245A 60%, #011638 100%)' }}>
+    <div className="min-h-[100dvh] flex flex-col items-center justify-center px-5"
+      style={{ background: 'linear-gradient(160deg, #011638 0%, #02245A 60%, #011638 100%)' }}>
+
       {/* 로고 */}
       <div className="mb-8 text-center">
         <div className="mx-auto flex items-center justify-center mb-12" style={{ width: 100, height: 100 }}>
@@ -91,52 +114,60 @@ export default function LoginPage() {
 
       <div className="w-full max-w-[360px] rounded-[20px] border p-6 flex flex-col gap-6"
         style={{ background: 'rgba(255,255,255,0.05)', borderColor: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(12px)' }}>
-        {/* Step 1 */}
+
+        {/* Step 1 — 서버 선택 */}
         <div>
-          <p className="text-xs font-semibold mb-3" style={{ color: 'rgba(255,255,255,0.5)' }}>① 나를 선택하세요</p>
-          <div className="grid grid-cols-3 gap-3">
-            {PARTICIPANTS.map(p => {
-              const isSelected = selected === p.username
+          <p className="text-xs font-semibold mb-3" style={{ color: 'rgba(255,255,255,0.5)' }}>① 서버를 선택하세요</p>
+          <div className="grid grid-cols-2 gap-3">
+            {SERVERS.map(s => {
+              const isSelected = server === s.id
               return (
-                <button
-                  key={p.username}
-                  type="button"
-                  onClick={() => selectUser(p.username)}
-                  className="flex flex-col items-center gap-2.5 py-4 px-2 rounded-[14px] border-2 transition-all duration-150 select-none active:scale-95"
+                <button key={s.id} type="button" onClick={() => selectServer(s.id)}
+                  className="flex flex-col items-center gap-2 py-4 px-2 rounded-[14px] border-2 transition-all duration-150 select-none active:scale-95"
                   style={isSelected
                     ? { borderColor: '#FFB81C', background: 'rgba(255,184,28,0.12)' }
-                    : { borderColor: 'rgba(255,255,255,0.15)', background: 'rgba(255,255,255,0.04)' }}
-                >
-                  <div className="w-12 h-12 rounded-full flex items-center justify-center text-white text-xl font-bold shadow-sm"
-                    style={{ backgroundColor: p.color }}>
-                    {p.displayName[1]}
-                  </div>
-                  <span className="text-xs font-bold text-white">{p.displayName}</span>
-                  {isSelected && (
-                    <div className="w-5 h-5 rounded-full flex items-center justify-center" style={{ backgroundColor: '#FFB81C' }}>
-                      <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
-                        <path d="M1 4L3.5 6.5L9 1" stroke="#011638" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                    </div>
-                  )}
+                    : { borderColor: 'rgba(255,255,255,0.15)', background: 'rgba(255,255,255,0.04)' }}>
+                  <span className="text-3xl">{s.emoji}</span>
+                  <span className="text-sm font-bold text-white">{s.label}</span>
                 </button>
               )
             })}
           </div>
         </div>
 
-        {/* Step 2 */}
+        {/* Step 2 — 유저 선택 */}
+        {server && users.length > 0 && (
+          <div>
+            <p className="text-xs font-semibold mb-3" style={{ color: 'rgba(255,255,255,0.5)' }}>② 나를 선택하세요</p>
+            <div className="grid grid-cols-3 gap-2 max-h-[240px] overflow-y-auto">
+              {users.map(u => {
+                const isSelected = selected === u.username
+                return (
+                  <button key={u.username} type="button" onClick={() => selectUser(u.username)}
+                    className="flex flex-col items-center gap-1.5 py-3 px-1 rounded-[12px] border-2 transition-all duration-150 select-none active:scale-95"
+                    style={isSelected
+                      ? { borderColor: '#FFB81C', background: 'rgba(255,184,28,0.12)' }
+                      : { borderColor: 'rgba(255,255,255,0.15)', background: 'rgba(255,255,255,0.04)' }}>
+                    <div className="w-9 h-9 rounded-full flex items-center justify-center text-white text-base font-bold"
+                      style={{ backgroundColor: u.color }}>
+                      {u.display_name[1]}
+                    </div>
+                    <span className="text-[11px] font-bold text-white text-center leading-tight">{u.display_name}</span>
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Step 3 — PIN */}
         {selected && (
           <div>
             <p className="text-xs font-semibold mb-3" style={{ color: 'rgba(255,255,255,0.5)' }}>
-              ② <span style={{ color: '#FFB81C' }} className="font-bold">{selectedUser?.displayName}</span>님의 비밀번호 4자리
+              ③ <span style={{ color: '#FFB81C' }} className="font-bold">{selectedUser?.display_name}</span>님의 비밀번호 4자리
             </p>
-            <PinInput
-              value={pin}
-              color={selectedUser?.color ?? '#0057B8'}
-              onChange={v => { setPin(v); setError('') }}
-              onComplete={handleLogin}
-            />
+            <PinInput value={pin} color={selectedUser?.color ?? '#0057B8'}
+              onChange={v => { setPin(v); setError('') }} onComplete={handleLogin} />
             {error && (
               <p className="text-xs font-medium mt-3 text-center" style={{ color: '#FF6B6B' }}>{error}</p>
             )}
@@ -144,18 +175,16 @@ export default function LoginPage() {
         )}
 
         {/* 입장 버튼 */}
-        <button
-          type="button"
-          onClick={handleLogin}
+        <button type="button" onClick={handleLogin}
           disabled={loading || !selected || pin.length !== 4}
           className="w-full py-3.5 rounded-[12px] text-sm font-bold transition-all duration-150 active:scale-[0.98]"
           style={selected && pin.length === 4
             ? { background: 'linear-gradient(135deg, #FFB81C, #F59A00)', color: '#011638' }
-            : { background: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.3)' }}
-        >
+            : { background: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.3)' }}>
           {loading ? (
             <span className="flex items-center justify-center gap-2">
-              <span className="w-4 h-4 border-2 rounded-full animate-spin" style={{ borderColor: 'rgba(1,22,56,0.3)', borderTopColor: '#011638' }} />
+              <span className="w-4 h-4 border-2 rounded-full animate-spin"
+                style={{ borderColor: 'rgba(1,22,56,0.3)', borderTopColor: '#011638' }} />
               확인 중...
             </span>
           ) : '입장하기'}
@@ -181,20 +210,13 @@ function PinInput({ value, onChange, onComplete, color = '#0057B8' }: {
 
   return (
     <div className="relative">
-      <input
-        type="tel"
-        inputMode="numeric"
-        value={value}
-        onChange={handleChange}
-        maxLength={4}
-        autoFocus
+      <input type="tel" inputMode="numeric" value={value} onChange={handleChange}
+        maxLength={4} autoFocus
         className="absolute inset-0 opacity-0 w-full h-full cursor-pointer z-10"
-        aria-label="4자리 비밀번호"
-      />
+        aria-label="4자리 비밀번호" />
       <div className="flex gap-3 justify-center pointer-events-none">
         {[0, 1, 2, 3].map(i => (
-          <div
-            key={i}
+          <div key={i}
             className="w-14 h-14 rounded-[12px] border-2 flex items-center justify-center transition-all duration-150"
             style={
               i < digits.length
@@ -202,8 +224,7 @@ function PinInput({ value, onChange, onComplete, color = '#0057B8' }: {
                 : i === digits.length
                 ? { backgroundColor: 'rgba(255,255,255,0.1)', borderColor: 'rgba(255,255,255,0.6)', boxShadow: '0 0 0 3px rgba(255,255,255,0.08)' }
                 : { backgroundColor: 'rgba(255,255,255,0.04)', borderColor: 'rgba(255,255,255,0.15)' }
-            }
-          >
+            }>
             {digits[i] && <span className="w-3 h-3 rounded-full" style={{ backgroundColor: '#FFB81C' }} />}
           </div>
         ))}

@@ -4,6 +4,7 @@ export interface WCUser {
   displayName: string
   color: string
   isAdmin: boolean
+  group: string
 }
 
 const SESSION_KEY = 'wc2026_session'
