@@ -282,8 +282,8 @@ function Leaderboard({ users, bets, results }: { users: DBUser[]; bets: DBBet[];
               style={i === 0 ? { background: 'rgba(255,184,28,0.06)' } : {}}
               onClick={() => setExpandedId(expandedId === user.id ? null : user.id)}>
               <span className="text-xl w-6 text-center flex-shrink-0">{i < 3 ? medals[i] : <span className="text-sm font-bold text-[#8B8B8B]">{i + 1}</span>}</span>
-              <span className="flex-1 text-sm font-semibold text-[#222222]">{user.display_name}</span>
-              <div className="flex items-center gap-2">
+              <div className="flex-1 flex items-center gap-2">
+                <span className="text-sm font-semibold text-[#222222]">{user.display_name}</span>
                 <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full border transition-colors ${
                   expandedId === user.id
                     ? 'bg-[#011638] text-white border-[#011638]'
@@ -291,17 +291,28 @@ function Leaderboard({ users, bets, results }: { users: DBUser[]; bets: DBBet[];
                 }`}>
                   {expandedId === user.id ? '닫기' : '베팅 내역'}
                 </span>
-                <div className="flex items-baseline gap-0.5">
-                  <span className="text-xl font-extrabold" style={{ color: i === 0 ? '#FFB81C' : '#011638' }}>{score}</span>
-                  <span className="text-xs text-[#8B8B8B]">점</span>
-                </div>
+              </div>
+              <div className="flex items-baseline gap-0.5">
+                <span className="text-xl font-extrabold" style={{ color: i === 0 ? '#FFB81C' : '#011638' }}>{score}</span>
+                <span className="text-xs text-[#8B8B8B]">점</span>
               </div>
             </button>
-            {expandedId === user.id && (
-              <div className="px-5 pb-3 border-t border-[#E6E6E6]">
-                <UserBetHistory user={user} bets={bets} results={results} />
-              </div>
-            )}
+            {expandedId === user.id && (() => {
+              const userBets = bets.filter(b => b.user_id === user.id)
+              const finished = userBets.filter(b => results.some(r => r.match_id === b.match_id))
+              const correct = finished.filter(b => { const r = results.find(r => r.match_id === b.match_id); return r && isCorrect(b, r) }).length
+              const rate = finished.length > 0 ? Math.round(correct / finished.length * 100) : 0
+              return (
+                <div className="px-5 pb-3 border-t border-[#E6E6E6]">
+                  <div className="flex items-center gap-2 py-2 mb-1">
+                    <span className="text-xs text-[#8B8B8B]">적중률</span>
+                    <span className="text-sm font-extrabold text-[#7C8C03]">{rate}%</span>
+                    <span className="text-xs text-[#BBBBBB]">({correct}/{finished.length})</span>
+                  </div>
+                  <UserBetHistory user={user} bets={bets} results={results} />
+                </div>
+              )
+            })()}
           </div>
         ))}
       </div>
@@ -572,9 +583,9 @@ function MyBets({ bets, results, myId }: {
                       {correct === null ? (
                         <span className="text-xs text-[#BBBBBB]">—</span>
                       ) : correct ? (
-                        <span className="text-sm font-bold text-[#01A484]">✓ 정답</span>
+                        <span className="text-sm font-bold text-[#01A484]">✓ 적중</span>
                       ) : (
-                        <span className="text-sm font-bold text-[#F94239]">✗ 오답</span>
+                        <span className="text-sm font-bold text-[#F94239]">✗ 미적중</span>
                       )}
                     </div>
                   </div>
