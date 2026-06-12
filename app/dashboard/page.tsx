@@ -381,6 +381,7 @@ function MatchCard({ match, bets, users, myId, results, onBet }: {
 }) {
   const locked = isLocked(match)
   const cardRef = useRef<HTMLDivElement>(null)
+  const matchResult = results.find(r => r.match_id === match.id)
 
   async function handleCapture() {
     if (!cardRef.current) return
@@ -419,7 +420,16 @@ function MatchCard({ match, bets, users, myId, results, onBet }: {
             <span className="text-5xl leading-none">{match.homeFlag}</span>
             <span className="text-base font-extrabold text-[#222222] text-center break-keep">{match.home}</span>
           </div>
-          <span className="text-sm font-bold text-[#BBBBBB] px-2">VS</span>
+          {matchResult ? (
+            <div className="flex flex-col items-center px-2">
+              <span className="text-2xl font-extrabold text-[#222222] tracking-tight">
+                {matchResult.home_score} : {matchResult.away_score}
+              </span>
+              <span className="text-[10px] font-semibold text-[#7C8C03] mt-0.5">최종</span>
+            </div>
+          ) : (
+            <span className="text-sm font-bold text-[#BBBBBB] px-2">VS</span>
+          )}
           <div className="flex flex-col items-center gap-2 flex-1">
             <span className="text-5xl leading-none">{match.awayFlag}</span>
             <span className="text-base font-extrabold text-[#222222] text-center break-keep">{match.away}</span>
