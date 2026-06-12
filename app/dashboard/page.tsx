@@ -272,11 +272,13 @@ function BetPanel({ match, bets, users, myId, results, onBet }: {
           <span className="text-xs font-semibold text-[#8B8B8B]">베팅 마감 — 경기 시작 5분 전에 마감됩니다</span>
         </div>
       )}
-      <div className="flex border-b border-[#E6E6E6] px-4 gap-1 overflow-x-auto no-scrollbar">
+      <div className="flex gap-2 px-4 py-3">
         {(['result', 'score', 'overunder'] as BetType[]).map(t => (
           <button key={t} onClick={() => setTab(t)}
-            className={`flex-shrink-0 py-2.5 px-3 text-xs font-semibold border-b-2 transition-colors ${
-              tab === t ? 'border-[#0057B8] text-[#0057B8]' : 'border-transparent text-[#8B8B8B]'
+            className={`flex-1 py-2 text-sm font-bold rounded-[10px] transition-all ${
+              tab === t
+                ? 'bg-[#011638] text-white shadow-sm'
+                : 'bg-[#F5F5F5] text-[#8B8B8B] hover:bg-[#E6E6E6]'
             }`}>
             {BET_LABELS[t]}
           </button>
