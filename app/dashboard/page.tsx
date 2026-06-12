@@ -139,11 +139,11 @@ function AdminPanel({ results, onSaved }: { results: DBResult[]; onSaved: () => 
   if (finishedMatches.length === 0) return null
 
   return (
-    <div className="bg-white rounded-[14px] border-2 border-[#CEDA80] p-4 mb-4">
+    <div className="bg-white rounded-[14px] border-2 border-[#FFB81C] p-4 mb-4">
       <div className="flex items-center gap-2 mb-3">
-        <Icon icon="solar:settings-bold" className="w-4 h-4 text-[#7C8C03]" />
+        <Icon icon="solar:settings-bold" className="w-4 h-4 text-[#0057B8]" />
         <span className="text-sm font-extrabold text-[#222222]">결과 수동 입력</span>
-        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[#E6EBB8] text-[#7C8C03]">관리자</span>
+        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[#EBF3FF] text-[#0057B8]">관리자</span>
       </div>
 
       <select
@@ -183,10 +183,10 @@ function AdminPanel({ results, onSaved }: { results: DBResult[]; onSaved: () => 
       )}
 
       <button onClick={handleSave} disabled={saving || homeScore === '' || awayScore === ''}
-        className="w-full bg-[#7C8C03] text-white py-2.5 rounded-[10px] text-sm font-semibold disabled:opacity-40 transition-colors hover:bg-[#5A6602]">
+        className="w-full bg-[#011638] text-white py-2.5 rounded-[10px] text-sm font-semibold disabled:opacity-40 transition-colors hover:bg-[#0057B8]">
         {saving ? '저장 중...' : existingResult ? '결과 수정' : '결과 저장'}
       </button>
-      {msg && <p className="text-xs text-center mt-2 text-[#7C8C03] font-semibold">{msg}</p>}
+      {msg && <p className="text-xs text-center mt-2 text-[#0057B8] font-semibold">{msg}</p>}
     </div>
   )
 }
@@ -248,7 +248,7 @@ function UserBetHistory({ user, bets, results }: { user: DBUser; bets: DBBet[]; 
                   : b.bet_value
                 return (
                   <span key={b.id} className={`text-[10px] font-semibold px-2 py-0.5 rounded-full flex items-center gap-1 ${
-                    correct === true ? 'bg-[#E6EBB8] text-[#7C8C03]' :
+                    correct === true ? 'bg-[#EBF3FF] text-[#0057B8]' :
                     correct === false ? 'bg-[#FFF5F5] text-[#F94239]' :
                     'bg-white text-[#49627A] border border-[#E6E6E6]'
                   }`}>
@@ -306,7 +306,7 @@ function Leaderboard({ users, bets, results }: { users: DBUser[]; bets: DBBet[];
                 <div className="px-5 pb-3 border-t border-[#E6E6E6]">
                   <div className="flex items-center gap-2 py-2 mb-1">
                     <span className="text-xs text-[#8B8B8B]">적중률</span>
-                    <span className="text-sm font-extrabold text-[#7C8C03]">{rate}%</span>
+                    <span className="text-sm font-extrabold text-[#0057B8]">{rate}%</span>
                     <span className="text-xs text-[#BBBBBB]">({correct}/{finished.length})</span>
                   </div>
                   <UserBetHistory user={user} bets={bets} results={results} />
@@ -504,7 +504,7 @@ function MatchCard({ match, bets, users, myId, results, onBet }: {
               <span className="text-2xl font-extrabold text-[#222222] tracking-tight">
                 {matchResult.home_score} : {matchResult.away_score}
               </span>
-              <span className="text-[10px] font-semibold text-[#7C8C03] mt-0.5">최종</span>
+              <span className="text-[10px] font-semibold text-[#0057B8] mt-0.5">최종</span>
             </div>
           ) : (
             <span className="text-sm font-bold text-[#BBBBBB] px-2">VS</span>
@@ -564,7 +564,7 @@ function MyBets({ bets, results, myId }: {
               <p className="flex-1 text-sm font-bold text-[#222222] text-center">{shortName(match.home)} vs {shortName(match.away)}</p>
               <div className="w-24 flex justify-end flex-shrink-0">
                 {result ? (
-                  <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-[#E6EBB8] text-[#7C8C03]">결과 발표</span>
+                  <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-[#EBF3FF] text-[#0057B8]">결과 발표</span>
                 ) : (
                   <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-[#F5F7FA] text-[#49627A]">대기중</span>
                 )}
@@ -583,7 +583,7 @@ function MyBets({ bets, results, myId }: {
                       {correct === null ? (
                         <span className="text-xs text-[#BBBBBB]">—</span>
                       ) : correct ? (
-                        <span className="text-sm font-bold text-[#01A484]">✓ 적중</span>
+                        <span className="text-sm font-bold text-[#0057B8]">✓ 적중</span>
                       ) : (
                         <span className="text-sm font-bold text-[#F94239]">✗ 미적중</span>
                       )}
