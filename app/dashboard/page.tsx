@@ -693,12 +693,13 @@ export default function DashboardPage() {
           <div className="flex gap-3">
             {(() => {
               const myBets = groupBets.filter(b => b.user_id === me.id)
-              const myCorrect = myBets.filter(b => {
+              const myFinishedBets = myBets.filter(b => results.some(r => r.match_id === b.match_id))
+              const myCorrect = myFinishedBets.filter(b => {
                 const r = results.find(r => r.match_id === b.match_id)
                 return r && isCorrect(b, r)
               }).length
               const myScore = myCorrect
-              const myWinRate = myBets.length > 0 ? Math.round((myCorrect / myBets.length) * 100) : 0
+              const myWinRate = myFinishedBets.length > 0 ? Math.round((myCorrect / myFinishedBets.length) * 100) : 0
               return [
                 { label: '내 총점', value: `${myScore}점` },
                 { label: '내 승률', value: `${myWinRate}%` },
