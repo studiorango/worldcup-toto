@@ -304,10 +304,12 @@ function Leaderboard({ users, bets, results }: { users: DBUser[]; bets: DBBet[];
               const rate = finished.length > 0 ? Math.round(correct / finished.length * 100) : 0
               return (
                 <div className="px-5 pb-3 border-t border-[#E6E6E6]">
-                  <div className="flex items-center gap-2 py-2 mb-1">
-                    <span className="text-xs text-[#8B8B8B]">적중률</span>
-                    <span className="text-sm font-extrabold text-[#0057B8]">{rate}%</span>
-                    <span className="text-xs text-[#BBBBBB]">({correct}/{finished.length})</span>
+                  <div className="flex items-center justify-between py-2.5 mb-1 border-b border-[#E6E6E6]">
+                    <span className="text-xs font-semibold text-[#8B8B8B]">적중률</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-[#8B8B8B]">{correct}/{finished.length}</span>
+                      <span className="text-base font-extrabold text-[#0057B8]">{rate}%</span>
+                    </div>
                   </div>
                   <UserBetHistory user={user} bets={bets} results={results} />
                 </div>
