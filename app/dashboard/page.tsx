@@ -284,12 +284,17 @@ function Leaderboard({ users, bets, results }: { users: DBUser[]; bets: DBBet[];
               <span className="text-xl w-6 text-center flex-shrink-0">{i < 3 ? medals[i] : <span className="text-sm font-bold text-[#8B8B8B]">{i + 1}</span>}</span>
               <span className="flex-1 text-sm font-semibold text-[#222222]">{user.display_name}</span>
               <div className="flex items-center gap-2">
+                <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full border transition-colors ${
+                  expandedId === user.id
+                    ? 'bg-[#011638] text-white border-[#011638]'
+                    : 'bg-white text-[#49627A] border-[#E6E6E6]'
+                }`}>
+                  {expandedId === user.id ? '닫기' : '베팅 내역'}
+                </span>
                 <div className="flex items-baseline gap-0.5">
                   <span className="text-xl font-extrabold" style={{ color: i === 0 ? '#FFB81C' : '#011638' }}>{score}</span>
                   <span className="text-xs text-[#8B8B8B]">점</span>
                 </div>
-                <Icon icon={expandedId === user.id ? 'solar:alt-arrow-up-linear' : 'solar:alt-arrow-down-linear'}
-                  className="w-3.5 h-3.5 text-[#BBBBBB]" />
               </div>
             </button>
             {expandedId === user.id && (
