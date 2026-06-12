@@ -209,14 +209,65 @@ function BetBadge({ type, value }: { type: BetType; value: string }) {
   return <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${s[type]}`}>{value}</span>
 }
 
+const BET_ORDER: BetType[] = ['result', 'score', 'overunder']
+
+function UserBetHistory({ user, bets, results }: { user: DBUser; bets: DBBet[]; results: DBResult[] }) {
+  const myBets = bets.filter(b => b.user_id === user.id)
+  const finishedBets = myBets.filter(b => results.some(r => r.match_id === b.match_id))
+
+  if (finishedBets.length === 0) {
+    return <p className="text-xs text-[#BBBBBB] text-center py-3">종료된 경기 베팅 없음</p>
+  }
+
+  const byMatch: Record<string, DBBet[]> = {}
+  finishedBets.forEach(b => {
+    if (!byMatch[b.match_id]) byMatch[b.match_id] = []
+    byMatch[b.match_id].push(b)
+  })
+
+  return (
+    <div className="flex flex-col gap-2 py-2">
+      {Object.entries(byMatch).map(([matchId, matchBets]) => {
+        const match = ALL_MATCHES.find(m => m.id === matchId)
+        const result = results.find(r => r.match_id === matchId)
+        if (!match) return null
+        const sorted = [...matchBets].sort((a, b) => BET_ORDER.indexOf(a.bet_type) - BET_ORDER.indexOf(b.bet_type))
+        return (
+          <div key={matchId} className="bg-[#F5F7FA] rounded-[10px] px-3 py-2">
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-[11px] font-bold text-[#222222]">
+                {shortName(match.home)} {result ? `${result.home_score}:${result.away_score}` : 'vs'} {shortName(match.away)}
+              </span>
+              <span className="text-[10px] text-[#8B8B8B]">{match.dateKST.slice(5).replace('-','/')}</span>
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {sorted.map(b => {
+                const correct = result ? isCorrect(b, result) : null
+                const displayVal = b.bet_type === 'result'
+                  ? (b.bet_value === '홈 승' ? `${shortName(match.home)} 승` : b.bet_value === '원정 승' ? `${shortName(match.away)} 승` : b.bet_value)
+                  : b.bet_value
+                return (
+                  <span key={b.id} className={`text-[10px] font-semibold px-2 py-0.5 rounded-full flex items-center gap-1 ${
+                    correct === true ? 'bg-[#E6EBB8] text-[#7C8C03]' :
+                    correct === false ? 'bg-[#FFF5F5] text-[#F94239]' :
+                    'bg-white text-[#49627A] border border-[#E6E6E6]'
+                  }`}>
+                    {correct === true ? '✓' : correct === false ? '✗' : ''} {displayVal}
+                  </span>
+                )
+              })}
+            </div>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
 function Leaderboard({ users, bets, results }: { users: DBUser[]; bets: DBBet[]; results: DBResult[] }) {
   const scores = calcScores(users, bets, results)
   const medals = ['🥇', '🥈', '🥉']
-  const rankColors = [
-    { border: 'rgba(255,184,28,0.6)', bg: 'rgba(255,184,28,0.12)' },
-    { border: 'rgba(255,255,255,0.25)', bg: 'rgba(255,255,255,0.08)' },
-    { border: 'rgba(255,255,255,0.15)', bg: 'rgba(255,255,255,0.05)' },
-  ]
+  const [expandedId, setExpandedId] = useState<string | null>(null)
 
   return (
     <div className="bg-white rounded-[20px] border border-[#E6E6E6] shadow-[0_1px_3px_rgba(0,0,0,0.04)] overflow-hidden mb-4">
@@ -225,15 +276,27 @@ function Leaderboard({ users, bets, results }: { users: DBUser[]; bets: DBBet[];
       </div>
       <div className="flex flex-col divide-y divide-[#E6E6E6]">
         {scores.map(({ user, score }, i) => (
-          <div key={user.id}
-            className="flex items-center gap-4 px-5 py-3.5"
-            style={i === 0 ? { background: 'rgba(255,184,28,0.06)' } : {}}>
-            <span className="text-xl w-6 text-center flex-shrink-0">{i < 3 ? medals[i] : <span className="text-sm font-bold text-[#8B8B8B]">{i + 1}</span>}</span>
-            <span className="flex-1 text-sm font-semibold text-[#222222]">{user.display_name}</span>
-            <div className="flex items-baseline gap-0.5">
-              <span className="text-xl font-extrabold" style={{ color: i === 0 ? '#FFB81C' : '#011638' }}>{score}</span>
-              <span className="text-xs text-[#8B8B8B]">점</span>
-            </div>
+          <div key={user.id}>
+            <button
+              className="w-full flex items-center gap-4 px-5 py-3.5 text-left"
+              style={i === 0 ? { background: 'rgba(255,184,28,0.06)' } : {}}
+              onClick={() => setExpandedId(expandedId === user.id ? null : user.id)}>
+              <span className="text-xl w-6 text-center flex-shrink-0">{i < 3 ? medals[i] : <span className="text-sm font-bold text-[#8B8B8B]">{i + 1}</span>}</span>
+              <span className="flex-1 text-sm font-semibold text-[#222222]">{user.display_name}</span>
+              <div className="flex items-center gap-2">
+                <div className="flex items-baseline gap-0.5">
+                  <span className="text-xl font-extrabold" style={{ color: i === 0 ? '#FFB81C' : '#011638' }}>{score}</span>
+                  <span className="text-xs text-[#8B8B8B]">점</span>
+                </div>
+                <Icon icon={expandedId === user.id ? 'solar:alt-arrow-up-linear' : 'solar:alt-arrow-down-linear'}
+                  className="w-3.5 h-3.5 text-[#BBBBBB]" />
+              </div>
+            </button>
+            {expandedId === user.id && (
+              <div className="px-5 pb-3 border-t border-[#E6E6E6]">
+                <UserBetHistory user={user} bets={bets} results={results} />
+              </div>
+            )}
           </div>
         ))}
       </div>
