@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useMemo, useCallback } from 'react'
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { Icon } from '@iconify/react'
 import Image from 'next/image'
@@ -380,8 +380,25 @@ function MatchCard({ match, bets, users, myId, results, onBet }: {
   onBet: (matchId: string, t: BetType, v: string) => Promise<void>
 }) {
   const locked = isLocked(match)
+  const cardRef = useRef<HTMLDivElement>(null)
+
+  async function handleCapture() {
+    if (!cardRef.current) return
+    const html2canvas = (await import('html2canvas')).default
+    const canvas = await html2canvas(cardRef.current, {
+      backgroundColor: '#ffffff',
+      scale: 2,
+      useCORS: true,
+    })
+    const link = document.createElement('a')
+    link.download = `${match.home}-vs-${match.away}.png`
+    link.href = canvas.toDataURL('image/png')
+    link.click()
+  }
+
   return (
     <div className="bg-white rounded-[14px] border border-[#FFB81C] shadow-[0_2px_8px_rgba(124,140,3,0.08)] overflow-hidden">
+      <div ref={cardRef} className="bg-white">
       <div className="p-4 pb-5">
         <div className="flex items-center justify-between mb-4">
           <span className="text-[11px] font-semibold text-[#49627A] bg-[#F5F7FA] px-2 py-0.5 rounded-full">{match.group}</span>
@@ -390,6 +407,11 @@ function MatchCard({ match, bets, users, myId, results, onBet }: {
               ? <span className="text-[11px] font-bold text-[#8B8B8B] flex items-center gap-1"><Icon icon="solar:lock-bold" className="w-3 h-3"/>마감</span>
               : <span className="text-[11px] text-[#8B8B8B] font-medium">{match.dateKST.slice(5).replace('-','/')} {match.timeKST} KST</span>
             }
+            <button onClick={handleCapture}
+              className="ml-1 p-1 rounded-full hover:bg-[#F5F5F5] transition-colors"
+              title="이미지로 저장">
+              <Icon icon="solar:camera-linear" className="w-4 h-4 text-[#BBBBBB]" />
+            </button>
           </div>
         </div>
         <div className="flex items-center justify-between px-2">
@@ -405,6 +427,7 @@ function MatchCard({ match, bets, users, myId, results, onBet }: {
         </div>
       </div>
       <BetPanel match={match} bets={bets} users={users} myId={myId} results={results} onBet={onBet} />
+      </div>
     </div>
   )
 }
